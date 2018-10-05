@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <RootNamespace>AHK.Evaluation</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\TaskRunners\AHK.TaskRunner.Domain\AHK.TaskRunner.Domain.csproj" />
+    <ProjectReference Include="..\AHK.Evaluation.Domain\AHK.Evaluation.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

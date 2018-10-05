@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "AHK.Cli": {
+      "commandName": "Project",
+      "commandLineArgs": "--AssignmentsDir=\"d:\\Projektek\\BME Oktatás\\Adatvezérelt rendszerek\\Hazifeladat\\Megoldas\\__AHK-teszt-feladat1\""
+    }
+  }
+}
