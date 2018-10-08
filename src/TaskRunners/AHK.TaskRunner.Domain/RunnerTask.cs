@@ -4,6 +4,7 @@ namespace AHK.TaskRunner
 {
     public class RunnerTask
     {
+        public readonly Guid TaskId;
         public readonly string ImageName;
         public readonly string SolutionDirectoryInMachine;
         public readonly string SolutionDirectoryInContainer;
@@ -11,11 +12,14 @@ namespace AHK.TaskRunner
         public readonly string ResultPathInContainer;
         public readonly string ResultPathInMachine;
 
-        public RunnerTask(string imageName,
+        public RunnerTask(
+                    Guid taskId,
+                    string imageName,
                     string solutionDirrectoryInMachine, string solutionDirectoryInContainer,
                     string resultPathInContainer, string resultPathInMachine,
                     TimeSpan evaluationTimeout)
         {
+            this.TaskId = taskId;
             this.ImageName = imageName;
             this.SolutionDirectoryInMachine = solutionDirrectoryInMachine;
             this.SolutionDirectoryInContainer = solutionDirectoryInContainer;

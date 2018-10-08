@@ -5,18 +5,23 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet;
+using Microsoft.Extensions.Logging;
 
 namespace AHK.TaskRunner
 {
     public class DockerRunner : ITaskRunner
     {
         private readonly RunnerTask task;
+        private readonly ILogger<DockerRunner> logger;
         private readonly DockerClient docker;
 
-        public DockerRunner(RunnerTask task)
+        public DockerRunner(RunnerTask task, ILogger<DockerRunner> logger)
         {
             this.task = task ?? throw new ArgumentNullException(nameof(task));
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.docker = new DockerClientConfiguration(LocalDockerUri()).CreateClient();
+
+            logger.LogTrace("Created Docker runner for {TaskId}", task.TaskId);
         }
 
         public async Task<RunnerResult> Run()
@@ -38,16 +43,21 @@ namespace AHK.TaskRunner
                     {
                         await cleanupContainer(containerId);
                     }
+
+                    logger.LogInformation("Docker runner finished");
+                    return RunnerResult.Success();
                 }
             }
             catch (OperationCanceledException)
             {
+                logger.LogWarning("Docker runner timeout");
+                return RunnerResult.Timeout();
             }
-            catch
+            catch(Exception ex)
             {
+                logger.LogError(ex, "Docker runner failed");
+                return RunnerResult.Failed(ex);
             }
-
-            return new RunnerResult();
         }
 
         private async Task cleanupContainer(string containerId)
@@ -56,9 +66,9 @@ namespace AHK.TaskRunner
             {
                 await docker.Containers.RemoveContainerAsync(containerId, new Docker.DotNet.Models.ContainerRemoveParameters() { Force = true, RemoveVolumes = true });
             }
-            catch (DockerContainerNotFoundException)
+            catch (Exception ex)
             {
-                // TO-DO log
+                logger.LogWarning(ex, "Cleanup of container {ContainerId} failed", containerId);
             }
         }
 
@@ -80,10 +90,14 @@ namespace AHK.TaskRunner
             if (!await docker.Containers.StartContainerAsync(containerId, new Docker.DotNet.Models.ContainerStartParameters(), cancellationToken))
                 throw new Exception("Failed to start container");
 
+            logger.LogTrace("Container running");
+
             var attachResult = await docker.Containers.AttachContainerAsync(containerId, false, new Docker.DotNet.Models.ContainerAttachParameters() { Stderr = true, Stdout = true, Stream = true }, cancellationToken);
             var readContainerLogsTask = attachResult.ReadOutputToEndAsync(cancellationToken);
 
             await docker.Containers.WaitContainerAsync(containerId, cancellationToken);
+
+            logger.LogTrace("Container stopped");
 
             var (logStdout, logStderr) = await readContainerLogsTask;
 
@@ -95,6 +109,12 @@ namespace AHK.TaskRunner
                         outputFilePath,
                         logStdout + Environment.NewLine + logStderr,
                         System.Text.Encoding.UTF8);
+
+                logger.LogTrace("Container stdout saved to artifact directory");
+            }
+            else
+            {
+                logger.LogWarning("Container stdout lost; no artifact directory");
             }
         }
 
@@ -103,6 +123,7 @@ namespace AHK.TaskRunner
             using (var memStreamForTar = new System.IO.MemoryStream())
             {
                 TarHelper.CreateTarFromDirectory(memStreamForTar, task.SolutionDirectoryInMachine);
+                var size = memStreamForTar.Position;
 
                 memStreamForTar.Seek(0, System.IO.SeekOrigin.Begin);
 
@@ -115,6 +136,8 @@ namespace AHK.TaskRunner
                     memStreamForTar,
                     cancellationToken
                 );
+
+                logger.LogTrace("Copied from {Source} to {Destination} {Size} bytes", task.SolutionDirectoryInMachine, task.SolutionDirectoryInContainer, size);
             }
         }
 
@@ -127,6 +150,8 @@ namespace AHK.TaskRunner
 
                 if (string.IsNullOrEmpty(createContainerResponse.ID))
                     throw new Exception("Container create failied with unknown error");
+
+                logger.LogTrace("Container created with ID {ContainerId}", createContainerResponse.ID);
 
                 return createContainerResponse.ID;
             }
@@ -157,14 +182,19 @@ namespace AHK.TaskRunner
                 });
 
                 if (findImageResult.Any())
-                    return;
-
-                await docker.Images.CreateImageAsync(new Docker.DotNet.Models.ImagesCreateParameters()
                 {
-                    FromImage = task.ImageName
-                },
-                null,
-                null);
+                    logger.LogTrace("Found image {ImageName} with Docker ID {ImageId}", task.ImageName, findImageResult.First().ID);
+                    return;
+                }
+
+                logger.LogTrace("Pulling image {ImageName}", task.ImageName);
+                await docker.Images.CreateImageAsync(new Docker.DotNet.Models.ImagesCreateParameters()
+                    {
+                        FromImage = task.ImageName
+                    },
+                    null,
+                    null);
+                logger.LogTrace("Pulling image {ImageName} completed", task.ImageName);
             }
             catch (Exception ex)
             {
@@ -172,11 +202,13 @@ namespace AHK.TaskRunner
             }
         }
 
-        private static Uri LocalDockerUri()
+        private Uri LocalDockerUri()
         {
             // from https://github.com/Microsoft/Docker.DotNet/commit/21832ee6b822671f9ca5ab4ef056e4b37a5f1e3d
             var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-            return isWindows ? new Uri("npipe://./pipe/docker_engine") : new Uri("unix:/var/run/docker.sock");
+            var uri = isWindows ? new Uri("npipe://./pipe/docker_engine") : new Uri("unix:/var/run/docker.sock");
+            logger.LogTrace("Using Docker Engine Uri {Uri}", uri);
+            return uri;
         }
 
         public void Dispose() => docker?.Dispose();

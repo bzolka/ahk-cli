@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace AHK
 {
@@ -10,10 +11,34 @@ namespace AHK
         {
             var appConfig = getAppConfig(args);
 
+            Console.WriteLine("Reading tasks...");
+
             var (tasksToEvaluate, taskSolutionProvider) = EvaluationTaskReaderFromDisk.ReadFrom(appConfig.AssignmentsDir);
 
-            await new Evaluation.EvaluationService(tasksToEvaluate, new StaticDockerRunnerFactory(), taskSolutionProvider, new Evaluation.FilesystemResultArtifactHandler(appConfig.ResultsDir))
-                                    .ProcessAllQueue();
+            var loggerFactory = new LoggerFactory()
+                        .AddConsole(LogLevel.Warning, true);
+
+            var es = new Evaluation.EvaluationService(tasksToEvaluate,
+                        new StaticDockerRunnerFactory(loggerFactory),
+                        taskSolutionProvider,
+                        new Evaluation.FilesystemResultArtifactHandler(appConfig.ResultsDir),
+                        loggerFactory.CreateLogger<Evaluation.EvaluationService>(),
+                        appConfig.MaxTaskRuntime);
+
+            Console.WriteLine("Running evaluation...");
+
+            var execStatistics = await es.ProcessAllQueue();
+
+            Console.WriteLine("Finished.");
+            if (execStatistics.HasFailed())
+            {
+                Console.WriteLine("Some evaluations FAILED (indicates program or configuration error)");
+                Console.WriteLine($"Solution tested: {execStatistics.AllTasks} / {execStatistics.ExecutedSuccessfully} executed without issues, {execStatistics.FailedExecution} FAILED to execute");
+            }
+            else
+            {
+                Console.WriteLine($"Executed {execStatistics.ExecutedSuccessfully} evaluations");
+            }
         }
 
         private static AppConfig getAppConfig(string[] commandLineArgs)
@@ -37,7 +62,13 @@ namespace AHK
 
         private class StaticDockerRunnerFactory : TaskRunner.ITaskRunnerFactory
         {
-            public TaskRunner.ITaskRunner CreateRunner(TaskRunner.RunnerTask task) => new TaskRunner.DockerRunner(task);
+            private ILoggerFactory loggerFactory;
+
+            public StaticDockerRunnerFactory(ILoggerFactory loggerFactory)
+                => this.loggerFactory = loggerFactory;
+
+            public TaskRunner.ITaskRunner CreateRunner(TaskRunner.RunnerTask task)
+                => new TaskRunner.DockerRunner(task, loggerFactory.CreateLogger<TaskRunner.DockerRunner>());
         }
     }
 }
