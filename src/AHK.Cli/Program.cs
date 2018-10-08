@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.Extensions.Configuration;
 
 namespace AHK
 {
@@ -8,11 +10,9 @@ namespace AHK
         {
             var appConfig = getAppConfig(args);
 
-            var inputQueue = Evaluation.EvaluatorInputQueueFactory.Create();
-            foreach (var evalTask in EvaluationTaskReaderFromDisk.ReadFrom(appConfig.AssignmentsDir))
-                inputQueue.Enqueue(evalTask);
+            var (tasksToEvaluate, taskSolutionProvider) = EvaluationTaskReaderFromDisk.ReadFrom(appConfig.AssignmentsDir);
 
-            await new Evaluation.EvaluationService(inputQueue, new StaticDockerRunnerFactory())
+            await new Evaluation.EvaluationService(tasksToEvaluate, new StaticDockerRunnerFactory(), taskSolutionProvider, new Evaluation.FilesystemResultArtifactHandler(appConfig.ResultsDir))
                                     .ProcessAllQueue();
         }
 
@@ -21,12 +21,19 @@ namespace AHK
             var configRoot = new ConfigurationBuilder()
                                     .AddJsonFile(@"AppConfig.json", optional: true, reloadOnChange: false)
                                     .AddEnvironmentVariables("AHK_")
-                                    .AddCommandLine(commandLineArgs)
+                                    .AddCommandLine(commandLineArgs, getCommandLineSwitchMappings())
                                     .Build();
             var appConfig = new AppConfig();
             configRoot.Bind(appConfig);
             return appConfig;
         }
+
+        private static IDictionary<string, string> getCommandLineSwitchMappings()
+            => new Dictionary<string, string>()
+            {
+                { "-m", "AssignmentsDir" },
+                { "-e", "ResultsDir" }
+            };
 
         private class StaticDockerRunnerFactory : TaskRunner.ITaskRunnerFactory
         {

@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace AHK.Evaluation.InputQueues
 {
-    internal class SimpleQueue : IEvaluatorInputQueue
+    public class SimpleQueue : IEvaluatorInputQueue
     {
         private readonly BlockingCollection<EvaluationTask> queue = new BlockingCollection<EvaluationTask>(new ConcurrentQueue<EvaluationTask>());
 

@@ -8,21 +8,28 @@ namespace AHK
 {
     internal static class EvaluationTaskReaderFromDisk
     {
-        public static IEnumerable<EvaluationTask> ReadFrom(string assignmentsDir)
+        public static (IEvaluatorInputQueue, FilesystemTaskSolutionProvider) ReadFrom(string assignmentsDir)
         {
             validateAssignmentsDir(assignmentsDir, out string configFilePath);
 
             var config = getConfig(configFilePath);
 
+            var evaluationTasks = new Evaluation.InputQueues.SimpleQueue();
+            var studentIdToSolutionDirMapping = new Dictionary<string, string>();
             foreach (var assignmentSolutionDir in Directory.EnumerateDirectories(assignmentsDir))
-                yield return createTaskFrom(config, assignmentSolutionDir);
+            {
+                var t = createTaskFrom(config, assignmentSolutionDir);
+                evaluationTasks.Enqueue(t);
+                studentIdToSolutionDirMapping[t.StudentId] = assignmentSolutionDir;
+            }
+
+            return (evaluationTasks, new FilesystemTaskSolutionProvider(studentIdToSolutionDirMapping));
         }
 
         private static EvaluationTask createTaskFrom(EvaluationConfig config, string solutionDirectoryPath)
         {
-            // TO-DO
-            var studentId = Path.GetDirectoryName(solutionDirectoryPath);
-            return new EvaluationTask(studentId, solutionDirectoryPath, config);
+            var studentId = Path.GetFileName(solutionDirectoryPath);
+            return new EvaluationTask(studentId, config);
         }
 
         private static EvaluationConfig getConfig(string configFilePath)

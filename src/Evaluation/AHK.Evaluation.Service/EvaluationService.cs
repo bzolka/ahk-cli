@@ -9,11 +9,15 @@ namespace AHK.Evaluation
     {
         private readonly IEvaluatorInputQueue inputQueue;
         private readonly ITaskRunnerFactory taskRunnerFactory;
+        private readonly ITaskSolutionProvider taskSolutionProvider;
+        private readonly IResultArtifactHandler resultArtifactsHandler;
 
-        public EvaluationService(IEvaluatorInputQueue inputQueue, ITaskRunnerFactory taskRunnerFactory)
+        public EvaluationService(IEvaluatorInputQueue inputQueue, ITaskRunnerFactory taskRunnerFactory, ITaskSolutionProvider taskSolutionProvider, IResultArtifactHandler resultArtifactsHandler)
         {
             this.inputQueue = inputQueue;
             this.taskRunnerFactory = taskRunnerFactory;
+            this.taskSolutionProvider = taskSolutionProvider;
+            this.resultArtifactsHandler = resultArtifactsHandler;
         }
 
         public async Task RunContinuously(CancellationToken stop)
@@ -46,7 +50,8 @@ namespace AHK.Evaluation
             {
                 if (shouldRun(evaluationTask))
                 {
-                    var runnerTask = createRunnerTask(evaluationTask);
+                    var solutionPath = taskSolutionProvider.GetSolutionPath(evaluationTask.StudentId);
+                    var runnerTask = createRunnerTask(evaluationTask, solutionPath, resultArtifactsHandler.GetPathFor(evaluationTask.StudentId));
                     using (var taskRunner = taskRunnerFactory.CreateRunner(runnerTask))
                     {
                         var runnerResult = await taskRunner.Run();
@@ -66,16 +71,11 @@ namespace AHK.Evaluation
             }
         }
 
-        private RunnerTask createRunnerTask(EvaluationTask evaluationTask)
+        private RunnerTask createRunnerTask(EvaluationTask evaluationTask, string solutionFolder, string resultFolder)
             => new RunnerTask(evaluationTask.EvaluationConfig.ImageName,
-                evaluationTask.SolutionFullPath, evaluationTask.EvaluationConfig.SolutionDirectoryInContainer,
-                evaluationTask.EvaluationConfig.ResultInContainer, getPathForResults(evaluationTask),
-                evaluationTask.EvaluationConfig.EvaluationTimeout);
-
-        private static string getPathForResults(EvaluationTask evaluationTask)
-            => System.IO.Path.Combine(System.IO.Path.GetDirectoryName(evaluationTask.SolutionFullPath),
-                                      $"__Eredmenyek__{DateTime.Now.ToString("s").Replace(':', '-')}",
-                                      System.IO.Path.GetFileName(evaluationTask.SolutionFullPath));
+                              solutionFolder, evaluationTask.EvaluationConfig.SolutionDirectoryInContainer,
+                              evaluationTask.EvaluationConfig.ResultInContainer, resultFolder,
+                              evaluationTask.EvaluationConfig.EvaluationTimeout);
 
         private EvaluationResult createEvaluationResultFrom(RunnerResult runnerResult)
         {
