@@ -11,13 +11,17 @@ namespace AHK.Evaluation
         private readonly ITaskRunnerFactory taskRunnerFactory;
         private readonly ITaskSolutionProvider taskSolutionProvider;
         private readonly IResultArtifactHandler resultArtifactsHandler;
+        private readonly TimeSpan evaluationTimeout;
 
-        public EvaluationService(IEvaluatorInputQueue inputQueue, ITaskRunnerFactory taskRunnerFactory, ITaskSolutionProvider taskSolutionProvider, IResultArtifactHandler resultArtifactsHandler)
+        public EvaluationService(IEvaluatorInputQueue inputQueue, ITaskRunnerFactory taskRunnerFactory,
+                                 ITaskSolutionProvider taskSolutionProvider, IResultArtifactHandler resultArtifactsHandler,
+                                 TimeSpan? evaluationTimeout = null)
         {
             this.inputQueue = inputQueue;
             this.taskRunnerFactory = taskRunnerFactory;
             this.taskSolutionProvider = taskSolutionProvider;
             this.resultArtifactsHandler = resultArtifactsHandler;
+            this.evaluationTimeout = evaluationTimeout ?? TimeSpan.FromMinutes(8);
         }
 
         public async Task RunContinuously(CancellationToken stop)
@@ -75,7 +79,7 @@ namespace AHK.Evaluation
             => new RunnerTask(evaluationTask.EvaluationConfig.ImageName,
                               solutionFolder, evaluationTask.EvaluationConfig.SolutionDirectoryInContainer,
                               evaluationTask.EvaluationConfig.ResultInContainer, resultFolder,
-                              evaluationTask.EvaluationConfig.EvaluationTimeout);
+                              TimeSpanHelper.Smaller(evaluationTask.EvaluationConfig.EvaluationTimeout, evaluationTimeout));
 
         private EvaluationResult createEvaluationResultFrom(RunnerResult runnerResult)
         {
