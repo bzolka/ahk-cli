@@ -13,12 +13,14 @@ namespace AHK.TaskRunner
     {
         private readonly RunnerTask task;
         private readonly ILogger<DockerRunner> logger;
+        private readonly ITempPathProvider tempPathProvider;
         private readonly DockerClient docker;
 
-        public DockerRunner(RunnerTask task, ILogger<DockerRunner> logger)
+        public DockerRunner(RunnerTask task, ILogger<DockerRunner> logger, ITempPathProvider tempPathProvider = null)
         {
             this.task = task ?? throw new ArgumentNullException(nameof(task));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.tempPathProvider = tempPathProvider ?? DefaultTempPathProvider.Instance;
             this.docker = new DockerClientConfiguration(LocalDockerUri()).CreateClient();
 
             logger.LogTrace("Created Docker runner for {TaskId}", task.TaskId);
@@ -30,14 +32,12 @@ namespace AHK.TaskRunner
             {
                 await ensureImageExists();
                 using (var timeout = new CancellationTokenSource(task.EvaluationTimeout))
+                using (var tempDirectoryForSolutionCopy = tempPathProvider.GetTempDirectory())
                 {
-                    var containerId = await createContainer(timeout.Token);
+                    var containerId = await createContainer(timeout.Token, tempDirectoryForSolutionCopy.Path);
                     try
                     {
-                        await copySolutionIntoContainer(containerId, timeout.Token);
                         await runContainerWaitForExit(containerId, timeout.Token);
-                        if (task.ShouldFetchResult)
-                            await fetchResultFromContainer(containerId, timeout.Token);
                     }
                     finally
                     {
@@ -70,19 +70,6 @@ namespace AHK.TaskRunner
             {
                 logger.LogWarning(ex, "Cleanup of container {ContainerId} failed", containerId);
             }
-        }
-
-        private async Task fetchResultFromContainer(string containerId, CancellationToken cancellationToken)
-        {
-            var getFileResponse = await docker.Containers.GetArchiveFromContainerAsync(containerId,
-                                    new Docker.DotNet.Models.GetArchiveFromContainerParameters()
-                                    {
-                                        Path = task.ResultPathInContainer
-                                    },
-                                    false,
-                                    cancellationToken);
-            using (var contentStream = getFileResponse.Stream)
-                TarHelper.ExtractTo(contentStream, task.ResultPathInMachine);
         }
 
         private async Task runContainerWaitForExit(string containerId, CancellationToken cancellationToken)
@@ -118,34 +105,42 @@ namespace AHK.TaskRunner
             }
         }
 
-        private async Task copySolutionIntoContainer(string containerId, CancellationToken cancellationToken)
-        {
-            using (var memStreamForTar = new System.IO.MemoryStream())
-            {
-                TarHelper.CreateTarFromDirectory(memStreamForTar, task.SolutionDirectoryInMachine);
-                var size = memStreamForTar.Position;
-
-                memStreamForTar.Seek(0, System.IO.SeekOrigin.Begin);
-
-                await docker.Containers.ExtractArchiveToContainerAsync(containerId,
-                    new Docker.DotNet.Models.ContainerPathStatParameters()
-                    {
-                        Path = task.SolutionDirectoryInContainer,
-                        AllowOverwriteDirWithFile = false
-                    },
-                    memStreamForTar,
-                    cancellationToken
-                );
-
-                logger.LogTrace("Copied from {Source} to {Destination} {Size} bytes", task.SolutionDirectoryInMachine, task.SolutionDirectoryInContainer, size);
-            }
-        }
-
-        private async Task<string> createContainer(CancellationToken cancellationToken)
+        private async Task<string> createContainer(CancellationToken cancellationToken, string tempPathForSolutionDirCopy)
         {
             try
             {
-                var createContainerParams = new Docker.DotNet.Models.CreateContainerParameters() { Image = task.ImageName, Labels = getContainerLabels() };
+                var createContainerParams = new Docker.DotNet.Models.CreateContainerParameters()
+                {
+                    Image = task.ImageName,
+                    Labels = getContainerLabels(),
+                    HostConfig = new Docker.DotNet.Models.HostConfig()
+                    {
+                        Mounts = new List<Docker.DotNet.Models.Mount>() { }
+                    }
+                };
+
+                System.IO.Directory.CreateDirectory(tempPathForSolutionDirCopy);
+                await DirectoryHelper.DirectoryCopy(task.SolutionDirectoryInMachine, tempPathForSolutionDirCopy, true);
+                createContainerParams.HostConfig.Mounts.Add(new Docker.DotNet.Models.Mount()
+                {
+                    Type = "bind",
+                    Source = tempPathForSolutionDirCopy,
+                    Target = task.SolutionDirectoryInContainer,
+                    ReadOnly = false
+                });
+
+                if (task.ShouldFetchResult)
+                {
+                    System.IO.Directory.CreateDirectory(task.ResultPathInMachine); // must exist for the mount
+                    createContainerParams.HostConfig.Mounts.Add(new Docker.DotNet.Models.Mount()
+                    {
+                        Type = "bind",
+                        Source = task.ResultPathInMachine,
+                        Target = task.ResultPathInContainer,
+                        ReadOnly = false
+                    });
+                }
+
                 var createContainerResponse = await docker.Containers.CreateContainerAsync(createContainerParams, cancellationToken);
 
                 if (string.IsNullOrEmpty(createContainerResponse.ID))
