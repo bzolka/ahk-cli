@@ -10,18 +10,20 @@ namespace AHK.Evaluation
     {
         private readonly IEvaluatorInputQueue inputQueue;
         private readonly ITaskRunnerFactory taskRunnerFactory;
+        private readonly IGraderFactory graderFactory;
         private readonly ITaskSolutionProvider taskSolutionProvider;
         private readonly IResultArtifactHandler resultArtifactsHandler;
         private readonly ILogger<EvaluationService> logger;
         private readonly TimeSpan evaluationTimeout;
 
-        public EvaluationService(IEvaluatorInputQueue inputQueue, ITaskRunnerFactory taskRunnerFactory,
+        public EvaluationService(IEvaluatorInputQueue inputQueue, ITaskRunnerFactory taskRunnerFactory, IGraderFactory graderFactory,
                                  ITaskSolutionProvider taskSolutionProvider, IResultArtifactHandler resultArtifactsHandler,
                                  ILogger<EvaluationService> logger,
                                  TimeSpan? evaluationTimeout = null)
         {
             this.inputQueue = inputQueue ?? throw new ArgumentNullException(nameof(inputQueue));
             this.taskRunnerFactory = taskRunnerFactory ?? throw new ArgumentNullException(nameof(taskRunnerFactory));
+            this.graderFactory = graderFactory ?? throw new ArgumentNullException(nameof(graderFactory));
             this.taskSolutionProvider = taskSolutionProvider ?? throw new ArgumentNullException(nameof(taskSolutionProvider));
             this.resultArtifactsHandler = resultArtifactsHandler ?? throw new ArgumentNullException(nameof(resultArtifactsHandler));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -74,9 +76,10 @@ namespace AHK.Evaluation
                     var artifactPath = resultArtifactsHandler.GetPathFor(evaluationTask.StudentId);
                     var runnerTask = createRunnerTask(evaluationTask, solutionPath, artifactPath);
 
-                    logger.LogInformation("InputPath {solutionPath}; artifacts {artifactPath}", solutionPath, artifactPath);
+                    logger.LogInformation("Input path {solutionPath}; artifacts {artifactPath}", solutionPath, artifactPath);
 
                     using (var taskRunner = taskRunnerFactory.CreateRunner(runnerTask))
+                    using (var grader = graderFactory.CreateGrader(evaluationTask))
                     {
                         logger.LogTrace("Starting runner");
                         var runnerResult = await taskRunner.Run();
@@ -84,11 +87,13 @@ namespace AHK.Evaluation
 
                         if (runnerResult.HadError())
                         {
+                            await grader.StoreFailedExecution(runnerResult.Exception.Message);
                             resultAggregator.OnExecutionFailed();
                             logger.LogError(runnerResult.Exception, "Evaluation task failed");
                         }
                         else
                         {
+                            await grader.GradeResult(artifactPath);
                             resultAggregator.OnExecutionCompleted();
                         }
                     }
@@ -108,7 +113,7 @@ namespace AHK.Evaluation
         private RunnerTask createRunnerTask(EvaluationTask evaluationTask, string solutionFolder, string resultFolder)
             => new RunnerTask(evaluationTask.TaskId,
                               evaluationTask.EvaluationConfig.ImageName,
-                              solutionFolder, evaluationTask.EvaluationConfig.SolutionDirectoryInContainer,
+                              solutionFolder, evaluationTask.EvaluationConfig.SolutionInContainer,
                               evaluationTask.EvaluationConfig.ResultInContainer, resultFolder,
                               TimeSpanHelper.Smaller(evaluationTask.EvaluationConfig.EvaluationTimeout, evaluationTimeout));
     }

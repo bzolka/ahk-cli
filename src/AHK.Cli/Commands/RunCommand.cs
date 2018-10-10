@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using AHK.Evaluation.Grader;
 using Microsoft.Extensions.Logging;
 
 namespace AHK
@@ -13,7 +14,8 @@ namespace AHK
             var (tasksToEvaluate, taskSolutionProvider) = EvaluationTaskReaderFromDisk.ReadFrom(assignmentsDir);
 
             var es = new Evaluation.EvaluationService(tasksToEvaluate,
-                        new StaticDockerRunnerFactory(loggerFactory),
+                        new DockerRunnerFactory(loggerFactory),
+                        new TrxGraderFactory(),
                         taskSolutionProvider,
                         new Evaluation.FilesystemResultArtifactHandler(resultsDir),
                         loggerFactory.CreateLogger<Evaluation.EvaluationService>(),
@@ -37,11 +39,11 @@ namespace AHK
             }
         }
 
-        private class StaticDockerRunnerFactory : TaskRunner.ITaskRunnerFactory
+        private class DockerRunnerFactory : TaskRunner.ITaskRunnerFactory
         {
             private ILoggerFactory loggerFactory;
 
-            public StaticDockerRunnerFactory(ILoggerFactory loggerFactory)
+            public DockerRunnerFactory(ILoggerFactory loggerFactory)
                 => this.loggerFactory = loggerFactory;
 
             public Task Cleanup(ILogger logger) => TaskRunner.DockerCleanup.Cleanup(logger);

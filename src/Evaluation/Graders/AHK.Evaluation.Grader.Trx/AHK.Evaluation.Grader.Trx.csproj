@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <RootNamespace>AHK.Evaluation.Grader</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\AHK.Evaluation.Domain\AHK.Evaluation.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Evaluation\AHK.Evaluation.Domain\AHK.Evaluation.Domain.csproj" />
     <ProjectReference Include="..\Evaluation\AHK.Evaluation.Service\AHK.Evaluation.Service.csproj" />
+    <ProjectReference Include="..\Evaluation\Graders\AHK.Evaluation.Grader.Trx\AHK.Evaluation.Grader.Trx.csproj" />
     <ProjectReference Include="..\TaskRunners\AHK.TaskRunner.Docker\AHK.TaskRunner.Docker.csproj" />
   </ItemGroup>
 
