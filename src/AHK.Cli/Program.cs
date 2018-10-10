@@ -1,74 +1,57 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Configuration;
 
 namespace AHK
 {
     class Program
     {
-        static async System.Threading.Tasks.Task Main(string[] args)
+        static void Main(string[] args)
         {
-            var appConfig = getAppConfig(args);
+            var appConfig = getAppConfig();
 
-            Console.WriteLine("Reading tasks...");
-
-            var (tasksToEvaluate, taskSolutionProvider) = EvaluationTaskReaderFromDisk.ReadFrom(appConfig.AssignmentsDir);
-
-            var loggerFactory = new LoggerFactory()
-                        .AddConsole(LogLevel.Warning, true);
-
-            var es = new Evaluation.EvaluationService(tasksToEvaluate,
-                        new StaticDockerRunnerFactory(loggerFactory),
-                        taskSolutionProvider,
-                        new Evaluation.FilesystemResultArtifactHandler(appConfig.ResultsDir),
-                        loggerFactory.CreateLogger<Evaluation.EvaluationService>(),
-                        appConfig.MaxTaskRuntime);
-
-            Console.WriteLine("Running evaluation...");
-
-            var execStatistics = await es.ProcessAllQueue();
-
-            Console.WriteLine("Finished.");
-            if (execStatistics.HasFailed())
-            {
-                Console.WriteLine("Some evaluations FAILED (indicates program or configuration error)");
-                Console.WriteLine($"Solution tested: {execStatistics.AllTasks} / {execStatistics.ExecutedSuccessfully} executed without issues, {execStatistics.FailedExecution} FAILED to execute");
-            }
-            else
-            {
-                Console.WriteLine($"Executed {execStatistics.ExecutedSuccessfully} evaluations");
-            }
+            createCliApp(appConfig)
+                .Execute(args);
         }
 
-        private static AppConfig getAppConfig(string[] commandLineArgs)
+        private static Microsoft.Extensions.CommandLineUtils.CommandLineApplication createCliApp(AppConfig appConfig)
+        {
+            var cliApp = new Microsoft.Extensions.CommandLineUtils.CommandLineApplication(throwOnUnexpectedArg: false);
+            cliApp.Command("run",
+                runCommandConfig =>
+                {
+                    runCommandConfig.Description = "Kiertekeles futtatasa hallgatoi megoldasokon";
+                    var megoldasArg = runCommandConfig.Option("-m|--megoldas", "Hallgatoi megoldasokat tartalmazo konyvtar", Microsoft.Extensions.CommandLineUtils.CommandOptionType.SingleValue);
+                    var eredmenyArg = runCommandConfig.Option("-e|--eredmeny", "Eredmenyek ebbe a konyvtarba keruljenek", Microsoft.Extensions.CommandLineUtils.CommandOptionType.SingleValue);
+
+                    runCommandConfig.OnExecute(async () =>
+                    {
+                        if (!megoldasArg.HasValue() || !eredmenyArg.HasValue())
+                        {
+                            runCommandConfig.ShowHelp();
+                            return -1;
+                        }
+
+                        return await RunCommand.Execute(megoldasArg.Value(), eredmenyArg.Value(), appConfig);
+                    });
+                },
+                throwOnUnexpectedArg: false);
+            cliApp.HelpOption("-?|-h|--help");
+
+
+            cliApp.FullName = "AUTomatikusa Hazi Kiertekelo";
+            cliApp.OnExecute(() => { cliApp.ShowHelp(); return 0; });
+
+            return cliApp;
+        }
+
+        private static AppConfig getAppConfig()
         {
             var configRoot = new ConfigurationBuilder()
                                     .AddJsonFile(@"AppConfig.json", optional: true, reloadOnChange: false)
                                     .AddEnvironmentVariables("AHK_")
-                                    .AddCommandLine(commandLineArgs, getCommandLineSwitchMappings())
                                     .Build();
             var appConfig = new AppConfig();
             configRoot.Bind(appConfig);
             return appConfig;
-        }
-
-        private static IDictionary<string, string> getCommandLineSwitchMappings()
-            => new Dictionary<string, string>()
-            {
-                { "-m", "AssignmentsDir" },
-                { "-e", "ResultsDir" }
-            };
-
-        private class StaticDockerRunnerFactory : TaskRunner.ITaskRunnerFactory
-        {
-            private ILoggerFactory loggerFactory;
-
-            public StaticDockerRunnerFactory(ILoggerFactory loggerFactory)
-                => this.loggerFactory = loggerFactory;
-
-            public TaskRunner.ITaskRunner CreateRunner(TaskRunner.RunnerTask task)
-                => new TaskRunner.DockerRunner(task, loggerFactory.CreateLogger<TaskRunner.DockerRunner>());
         }
     }
 }
