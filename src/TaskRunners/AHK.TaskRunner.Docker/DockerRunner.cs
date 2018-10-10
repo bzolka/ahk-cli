@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Docker.DotNet;
@@ -21,7 +20,7 @@ namespace AHK.TaskRunner
             this.task = task ?? throw new ArgumentNullException(nameof(task));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.tempPathProvider = tempPathProvider ?? DefaultTempPathProvider.Instance;
-            this.docker = new DockerClientConfiguration(LocalDockerUri()).CreateClient();
+            this.docker = DockerConnectionHelper.GetConnectionConfiguration().CreateClient();
 
             logger.LogTrace("Created Docker runner for {TaskId}", task.TaskId);
         }
@@ -163,7 +162,7 @@ namespace AHK.TaskRunner
         private IDictionary<string, string> getContainerLabels()
             => new Dictionary<string, string>()
             {
-                { "AHK", "1" },
+                { DockerCleanup.ContainerLabel, "" },
                 { "AHK_SolutionDir", task.SolutionDirectoryInMachine }
             };
 
@@ -195,15 +194,6 @@ namespace AHK.TaskRunner
             {
                 throw new Exception("Pulling image failed", ex);
             }
-        }
-
-        private Uri LocalDockerUri()
-        {
-            // from https://github.com/Microsoft/Docker.DotNet/commit/21832ee6b822671f9ca5ab4ef056e4b37a5f1e3d
-            var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-            var uri = isWindows ? new Uri("npipe://./pipe/docker_engine") : new Uri("unix:/var/run/docker.sock");
-            logger.LogTrace("Using Docker Engine Uri {Uri}", uri);
-            return uri;
         }
 
         public void Dispose() => docker?.Dispose();

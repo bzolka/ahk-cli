@@ -5,4 +5,8 @@
     <RootNamespace>AHK.TaskRunner</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.1.1" />
+  </ItemGroup>
+
 </Project>

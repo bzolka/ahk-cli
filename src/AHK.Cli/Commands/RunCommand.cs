@@ -6,14 +6,11 @@ namespace AHK
 {
     internal static class RunCommand
     {
-        public static async Task<int> Execute(string assignmentsDir, string resultsDir, AppConfig appConfig)
+        public static async Task<int> Execute(string assignmentsDir, string resultsDir, AppConfig appConfig, ILoggerFactory loggerFactory)
         {
             Console.WriteLine("Reading tasks...");
 
             var (tasksToEvaluate, taskSolutionProvider) = EvaluationTaskReaderFromDisk.ReadFrom(assignmentsDir);
-
-            var loggerFactory = new LoggerFactory()
-                        .AddConsole(LogLevel.Warning, true);
 
             var es = new Evaluation.EvaluationService(tasksToEvaluate,
                         new StaticDockerRunnerFactory(loggerFactory),
@@ -46,6 +43,8 @@ namespace AHK
 
             public StaticDockerRunnerFactory(ILoggerFactory loggerFactory)
                 => this.loggerFactory = loggerFactory;
+
+            public Task Cleanup(ILogger logger) => TaskRunner.DockerCleanup.Cleanup(logger);
 
             public TaskRunner.ITaskRunner CreateRunner(TaskRunner.RunnerTask task)
                 => new TaskRunner.DockerRunner(task, loggerFactory.CreateLogger<TaskRunner.DockerRunner>());
