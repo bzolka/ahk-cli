@@ -23,18 +23,19 @@ namespace AHK
                 runCommandConfig =>
                 {
                     runCommandConfig.Description = "Kiertekeles futtatasa hallgatoi megoldasokon";
+                    var konfigArg = runCommandConfig.Option("-k|--konfiguracio", "Futtatast leiro konfiguracios fajl", Microsoft.Extensions.CommandLineUtils.CommandOptionType.SingleValue);
                     var megoldasArg = runCommandConfig.Option("-m|--megoldas", "Hallgatoi megoldasokat tartalmazo konyvtar", Microsoft.Extensions.CommandLineUtils.CommandOptionType.SingleValue);
                     var eredmenyArg = runCommandConfig.Option("-e|--eredmeny", "Eredmenyek ebbe a konyvtarba keruljenek", Microsoft.Extensions.CommandLineUtils.CommandOptionType.SingleValue);
 
                     runCommandConfig.OnExecute(async () =>
                     {
-                        if (!megoldasArg.HasValue() || !eredmenyArg.HasValue())
+                        if (!konfigArg.HasValue() || !megoldasArg.HasValue() || !eredmenyArg.HasValue())
                         {
                             runCommandConfig.ShowHelp();
                             return -1;
                         }
 
-                        return await RunCommand.Execute(megoldasArg.Value(), eredmenyArg.Value(), appConfig, loggerFactory);
+                        return await RunCommand.Execute(konfigArg.Value(), megoldasArg.Value(), eredmenyArg.Value(), appConfig, loggerFactory);
                     });
                 },
                 throwOnUnexpectedArg: false);

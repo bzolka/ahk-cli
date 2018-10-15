@@ -7,10 +7,11 @@ namespace AHK
 {
     internal static class EvaluationTaskReaderFromDisk
     {
-        public static IEvaluatorInputQueue ReadFrom(string assignmentsDir, string resultsDir)
+        public static IEvaluatorInputQueue ReadFrom(string configFileFromUser, string assignmentsDirFromUser, string resultsDirFromUser)
         {
-            validateAssignmentsDir(assignmentsDir, out string configFilePath);
-            resultsDir = getResultsDir(resultsDir);
+            var configFilePath = validateConfigFile(configFileFromUser);
+            var assignmentsDir = validateAssignmentsDir(assignmentsDirFromUser);
+            var resultsDir = validateResultsDir(resultsDirFromUser);
 
             var config = getConfig(configFilePath);
 
@@ -36,31 +37,50 @@ namespace AHK
             return configObject;
         }
 
-        private static void validateAssignmentsDir(string dir, out string configFilePath)
+        private static string validateAssignmentsDir(string dir)
         {
-            if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir))
-                throw new Exception($"Assignments directory '{dir}' missing.");
+            if (string.IsNullOrEmpty(dir))
+                throw new Exception("Assignment solutions directory not specified");
 
-            var possibleConfigFiles = Directory.GetFiles(dir, "*.json", SearchOption.TopDirectoryOnly);
-            if (possibleConfigFiles.Length == 0)
-                throw new Exception($"Missing a configration json file in '{dir}'");
-            if (possibleConfigFiles.Length > 1)
-                throw new Exception($"Found more than one configration json file in '{dir}'");
+            var absolutePath = Path.GetFullPath(dir);
 
-            configFilePath = possibleConfigFiles[0];
+            if (!Directory.Exists(absolutePath))
+                throw new Exception($"Assignments directory '{absolutePath}' missing.");
+            if (Directory.GetDirectories(absolutePath).Length == 0)
+                throw new Exception($"Missing assignment solution directories in '{absolutePath}'");
 
-            if (Directory.GetDirectories(dir).Length == 0)
-                throw new Exception($"Missing assignment solution directories in '{dir}'");
+            return absolutePath;
         }
 
-        private static string getResultsDir(string path)
+        private static string validateConfigFile(string path)
         {
             if (string.IsNullOrEmpty(path))
-                throw new Exception($"Results directory not specified.");
+                throw new Exception($"Configuration file not specified");
 
-            path = path
+            if (File.Exists(path))
+            {
+                return Path.GetFullPath(path);
+            }
+            else
+            {
+                var possibleConfigFiles = Directory.GetFiles(path, "*.json", SearchOption.TopDirectoryOnly);
+                if (possibleConfigFiles.Length == 0)
+                    throw new Exception($"Missing a configration json file in '{path}'");
+                if (possibleConfigFiles.Length > 1)
+                    throw new Exception($"Found more than one configration json file in '{path}'");
+
+                return Path.GetFullPath(possibleConfigFiles[0]);
+            }
+        }
+
+        private static string validateResultsDir(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+                throw new Exception($"Results directory not specified");
+
+            path = Path.GetFullPath(path
                 .Replace("{date}", DateTime.Now.ToPathCompatibleString())
-                .Replace("{datum}", DateTime.Now.ToPathCompatibleString());
+                .Replace("{datum}", DateTime.Now.ToPathCompatibleString()));
 
             var originalPath = path;
             int counter = 0;

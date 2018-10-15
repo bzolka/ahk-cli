@@ -7,11 +7,11 @@ namespace AHK
 {
     internal static class RunCommand
     {
-        public static async Task<int> Execute(string assignmentsDir, string resultsDir, AppConfig appConfig, ILoggerFactory loggerFactory)
+        public static async Task<int> Execute(string executionConfifFile, string assignmentsDir, string resultsDir, AppConfig appConfig, ILoggerFactory loggerFactory)
         {
             Console.WriteLine("Reading tasks...");
 
-            var tasksToEvaluate = EvaluationTaskReaderFromDisk.ReadFrom(assignmentsDir, resultsDir);
+            var tasksToEvaluate = EvaluationTaskReaderFromDisk.ReadFrom(executionConfifFile, assignmentsDir, resultsDir);
 
             var es = new Evaluation.EvaluationService(tasksToEvaluate,
                         new DockerRunnerFactory(loggerFactory),
