@@ -2,13 +2,16 @@
 {
     public class EvaluationStatistics
     {
-        public int AllTasks { get; private set; }
-        public int ExecutedSuccessfully { get; private set; }
-        public int FailedExecution { get; private set; }
+        public readonly int AllTasks;
+        public readonly int ExecutedSuccessfully;
+        public readonly int FailedExecution;
 
-        public void OnExecutionFailed() => ++FailedExecution;
-        public void OnExecutionCompleted() => ++ExecutedSuccessfully;
-        public void OnExecutionStarted() => ++AllTasks;
+        public EvaluationStatistics(int allTasks, int executedSuccessfully, int failedExecution)
+        {
+            AllTasks = allTasks;
+            ExecutedSuccessfully = executedSuccessfully;
+            FailedExecution = failedExecution;
+        }
 
         public bool HasFailed() => FailedExecution > 0;
     }

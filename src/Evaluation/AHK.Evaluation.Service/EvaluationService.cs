@@ -30,7 +30,7 @@ namespace AHK.Evaluation
             logger.LogInformation("Queue processing started");
             try
             {
-                var evaluationResult = new EvaluationStatistics();
+                var evaluationResult = new EvaluationStatisticsRecorder();
                 while (!stop.IsCancellationRequested)
                 {
                     var evaluationTask = inputQueue.Dequeue(stop);
@@ -50,25 +50,24 @@ namespace AHK.Evaluation
 
         public async Task<EvaluationStatistics> ProcessAllQueue()
         {
-            var evaluationResult = new EvaluationStatistics();
+            var evaluationResult = new EvaluationStatisticsRecorder();
             while (inputQueue.TryDequeue(out EvaluationTask evaluationTask))
             {
                 await processTask(evaluationTask, evaluationResult);
             }
-            return evaluationResult;
+            return evaluationResult.GetEvaluationStatistics();
         }
 
-        private async Task processTask(EvaluationTask evaluationTask, EvaluationStatistics resultAggregator)
+        private async Task processTask(EvaluationTask evaluationTask, EvaluationStatisticsRecorder evaluationStatisticsRecorder)
         {
             using (logger.BeginScope("Evaluating task {TaskId}; StudentId {StudentId}", evaluationTask.TaskId, evaluationTask.StudentId))
+            using (var evaluationStatScope = evaluationStatisticsRecorder.OnExecutionStarted())
             {
                 logger.LogInformation("Input path {solutionPath}; artifacts {artifactPath}", evaluationTask.SolutionPath, evaluationTask.ResultArtifactPath);
                 logger.LogInformation("Starting evaluation");
 
                 try
                 {
-                    resultAggregator.OnExecutionStarted();
-
                     var runnerTask = createRunnerTask(evaluationTask);
 
                     using (var taskRunner = taskRunnerFactory.CreateRunner(runnerTask))
@@ -81,19 +80,19 @@ namespace AHK.Evaluation
                         if (runnerResult.HadError())
                         {
                             await grader.StoreFailedExecution(runnerResult.Exception.Message);
-                            resultAggregator.OnExecutionFailed();
+                            evaluationStatScope.OnExecutionFailed();
                             logger.LogError(runnerResult.Exception, "Evaluation task failed");
                         }
                         else
                         {
                             await grader.GradeResult(evaluationTask.ResultArtifactPath);
-                            resultAggregator.OnExecutionCompleted();
+                            evaluationStatScope.OnExecutionCompleted();
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    resultAggregator.OnExecutionFailed();
+                    evaluationStatScope.OnExecutionFailed();
                     logger.LogError(ex, "Evaluation task failed");
                 }
                 finally
