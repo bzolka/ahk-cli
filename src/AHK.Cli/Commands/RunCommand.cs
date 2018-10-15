@@ -11,13 +11,11 @@ namespace AHK
         {
             Console.WriteLine("Reading tasks...");
 
-            var (tasksToEvaluate, taskSolutionProvider) = EvaluationTaskReaderFromDisk.ReadFrom(assignmentsDir);
+            var tasksToEvaluate = EvaluationTaskReaderFromDisk.ReadFrom(assignmentsDir, resultsDir);
 
             var es = new Evaluation.EvaluationService(tasksToEvaluate,
                         new DockerRunnerFactory(loggerFactory),
                         new TrxGraderFactory(),
-                        taskSolutionProvider,
-                        new Evaluation.FilesystemResultArtifactHandler(resultsDir),
                         loggerFactory.CreateLogger<Evaluation.EvaluationService>(),
                         appConfig.MaxTaskRuntime);
 

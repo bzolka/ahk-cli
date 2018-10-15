@@ -2,7 +2,7 @@
 
 namespace AHK.Evaluation
 {
-    internal static class DateTimeHelper
+    public static class DateTimeHelper
     {
         /// <summary>
         /// Gets date like 2018-10-08T10-02-45

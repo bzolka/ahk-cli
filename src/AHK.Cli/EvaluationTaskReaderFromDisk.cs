@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using AHK.Evaluation;
 using Microsoft.Extensions.Configuration;
@@ -8,28 +7,25 @@ namespace AHK
 {
     internal static class EvaluationTaskReaderFromDisk
     {
-        public static (IEvaluatorInputQueue, FilesystemTaskSolutionProvider) ReadFrom(string assignmentsDir)
+        public static IEvaluatorInputQueue ReadFrom(string assignmentsDir, string resultsDir)
         {
             validateAssignmentsDir(assignmentsDir, out string configFilePath);
+            resultsDir = getResultsDir(resultsDir);
 
             var config = getConfig(configFilePath);
 
-            var evaluationTasks = new Evaluation.InputQueues.SimpleQueue();
-            var studentIdToSolutionDirMapping = new Dictionary<string, string>();
+            var evaluationTasksQueue = new Evaluation.InputQueues.SimpleQueue();
             foreach (var assignmentSolutionDir in Directory.EnumerateDirectories(assignmentsDir))
-            {
-                var t = createTaskFrom(config, assignmentSolutionDir);
-                evaluationTasks.Enqueue(t);
-                studentIdToSolutionDirMapping[t.StudentId] = assignmentSolutionDir;
-            }
+                evaluationTasksQueue.Enqueue(createTaskFrom(config, assignmentSolutionDir, resultsDir));
 
-            return (evaluationTasks, new FilesystemTaskSolutionProvider(studentIdToSolutionDirMapping));
+            return evaluationTasksQueue;
         }
 
-        private static EvaluationTask createTaskFrom(EvaluationConfig config, string solutionDirectoryPath)
+        private static EvaluationTask createTaskFrom(EvaluationConfig config, string solutionDirectoryPath, string resultsBaseDir)
         {
             var studentId = Path.GetFileName(solutionDirectoryPath);
-            return new EvaluationTask(studentId, config);
+            var resultsDir = Path.Combine(resultsBaseDir, studentId);
+            return new EvaluationTask(studentId, solutionDirectoryPath, resultsDir, config);
         }
 
         private static EvaluationConfig getConfig(string configFilePath)
@@ -46,7 +42,7 @@ namespace AHK
                 throw new Exception($"Assignments directory '{dir}' missing.");
 
             var possibleConfigFiles = Directory.GetFiles(dir, "*.json", SearchOption.TopDirectoryOnly);
-            if(possibleConfigFiles.Length == 0)
+            if (possibleConfigFiles.Length == 0)
                 throw new Exception($"Missing a configration json file in '{dir}'");
             if (possibleConfigFiles.Length > 1)
                 throw new Exception($"Found more than one configration json file in '{dir}'");
@@ -55,6 +51,23 @@ namespace AHK
 
             if (Directory.GetDirectories(dir).Length == 0)
                 throw new Exception($"Missing assignment solution directories in '{dir}'");
+        }
+
+        private static string getResultsDir(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+                throw new Exception($"Results directory not specified.");
+
+            path = path
+                .Replace("{date}", DateTime.Now.ToPathCompatibleString())
+                .Replace("{datum}", DateTime.Now.ToPathCompatibleString());
+
+            var originalPath = path;
+            int counter = 0;
+            while (Directory.Exists(path))
+                path = originalPath + "_" + (++counter);
+
+            return path;
         }
     }
 }

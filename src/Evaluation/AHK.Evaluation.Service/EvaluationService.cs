@@ -11,21 +11,16 @@ namespace AHK.Evaluation
         private readonly IEvaluatorInputQueue inputQueue;
         private readonly ITaskRunnerFactory taskRunnerFactory;
         private readonly IGraderFactory graderFactory;
-        private readonly ITaskSolutionProvider taskSolutionProvider;
-        private readonly IResultArtifactHandler resultArtifactsHandler;
         private readonly ILogger<EvaluationService> logger;
         private readonly TimeSpan evaluationTimeout;
 
         public EvaluationService(IEvaluatorInputQueue inputQueue, ITaskRunnerFactory taskRunnerFactory, IGraderFactory graderFactory,
-                                 ITaskSolutionProvider taskSolutionProvider, IResultArtifactHandler resultArtifactsHandler,
                                  ILogger<EvaluationService> logger,
                                  TimeSpan? evaluationTimeout = null)
         {
             this.inputQueue = inputQueue ?? throw new ArgumentNullException(nameof(inputQueue));
             this.taskRunnerFactory = taskRunnerFactory ?? throw new ArgumentNullException(nameof(taskRunnerFactory));
             this.graderFactory = graderFactory ?? throw new ArgumentNullException(nameof(graderFactory));
-            this.taskSolutionProvider = taskSolutionProvider ?? throw new ArgumentNullException(nameof(taskSolutionProvider));
-            this.resultArtifactsHandler = resultArtifactsHandler ?? throw new ArgumentNullException(nameof(resultArtifactsHandler));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.evaluationTimeout = evaluationTimeout ?? TimeSpan.FromMinutes(8);
         }
@@ -67,16 +62,14 @@ namespace AHK.Evaluation
         {
             using (logger.BeginScope("Evaluating task {TaskId}; StudentId {StudentId}", evaluationTask.TaskId, evaluationTask.StudentId))
             {
+                logger.LogInformation("Input path {solutionPath}; artifacts {artifactPath}", evaluationTask.SolutionPath, evaluationTask.ResultArtifactPath);
                 logger.LogInformation("Starting evaluation");
+
                 try
                 {
                     resultAggregator.OnExecutionStarted();
 
-                    var solutionPath = taskSolutionProvider.GetSolutionPath(evaluationTask.StudentId);
-                    var artifactPath = resultArtifactsHandler.GetPathFor(evaluationTask.StudentId);
-                    var runnerTask = createRunnerTask(evaluationTask, solutionPath, artifactPath);
-
-                    logger.LogInformation("Input path {solutionPath}; artifacts {artifactPath}", solutionPath, artifactPath);
+                    var runnerTask = createRunnerTask(evaluationTask);
 
                     using (var taskRunner = taskRunnerFactory.CreateRunner(runnerTask))
                     using (var grader = graderFactory.CreateGrader(evaluationTask))
@@ -93,7 +86,7 @@ namespace AHK.Evaluation
                         }
                         else
                         {
-                            await grader.GradeResult(artifactPath);
+                            await grader.GradeResult(evaluationTask.ResultArtifactPath);
                             resultAggregator.OnExecutionCompleted();
                         }
                     }
@@ -110,11 +103,11 @@ namespace AHK.Evaluation
             }
         }
 
-        private RunnerTask createRunnerTask(EvaluationTask evaluationTask, string solutionFolder, string resultFolder)
+        private RunnerTask createRunnerTask(EvaluationTask evaluationTask)
             => new RunnerTask(evaluationTask.TaskId,
                               evaluationTask.EvaluationConfig.ImageName,
-                              solutionFolder, evaluationTask.EvaluationConfig.SolutionInContainer,
-                              evaluationTask.EvaluationConfig.ResultInContainer, resultFolder,
+                              evaluationTask.SolutionPath, evaluationTask.EvaluationConfig.SolutionInContainer,
+                              evaluationTask.EvaluationConfig.ResultInContainer, evaluationTask.ResultArtifactPath,
                               TimeSpanHelper.Smaller(evaluationTask.EvaluationConfig.EvaluationTimeout, evaluationTimeout));
     }
 }
