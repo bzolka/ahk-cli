@@ -2,7 +2,8 @@
   "profiles": {
     "AHK.Cli": {
       "commandName": "Project",
-      "commandLineArgs": "run -m \"d:\\Projektek\\BME Oktatás\\Adatvezérelt rendszerek\\Hazifeladat\\Megoldas\\__AHK-teszt-feladat1\" -e \"d:\\Projektek\\BME Oktatás\\Adatvezérelt rendszerek\\Hazifeladat\\Megoldas\\__AHK-teszt-eredmenyek_{datum}\""
+      "commandLineArgs": "run -k \"./futtato-konfiguracio\" -m \"./minta-hallgatoi-megoldasok\" -e \"./futas-eredmenye-{datum}\"",
+      "workingDirectory": "$(SolutionDir)..\\MintaHfEllenorzo"
     }
   }
 }
