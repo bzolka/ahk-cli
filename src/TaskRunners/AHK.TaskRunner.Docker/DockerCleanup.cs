@@ -12,8 +12,7 @@ namespace AHK.TaskRunner
         {
             using (var docker = DockerConnectionHelper.GetConnectionConfiguration().CreateClient())
             {
-                var containers = await docker.Containers.ListContainersAsync(new Docker.DotNet.Models.ContainersListParameters()
-                {
+                var containers = await docker.Containers.ListContainersAsync(new Docker.DotNet.Models.ContainersListParameters() {
                     All = true,
                     Filters = new Dictionary<string, IDictionary<string, bool>>()
                     {

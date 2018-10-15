@@ -52,7 +52,7 @@ namespace AHK.TaskRunner
                 logger.LogWarning("Docker runner timeout");
                 return RunnerResult.Timeout();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger.LogError(ex, "Docker runner failed");
                 return RunnerResult.Failed(ex);
@@ -108,20 +108,17 @@ namespace AHK.TaskRunner
         {
             try
             {
-                var createContainerParams = new Docker.DotNet.Models.CreateContainerParameters()
-                {
+                var createContainerParams = new Docker.DotNet.Models.CreateContainerParameters() {
                     Image = task.ImageName,
                     Labels = getContainerLabels(),
-                    HostConfig = new Docker.DotNet.Models.HostConfig()
-                    {
+                    HostConfig = new Docker.DotNet.Models.HostConfig() {
                         Mounts = new List<Docker.DotNet.Models.Mount>() { }
                     }
                 };
 
                 System.IO.Directory.CreateDirectory(tempPathForSolutionDirCopy);
                 await DirectoryHelper.DirectoryCopy(task.SolutionDirectoryInMachine, tempPathForSolutionDirCopy, true);
-                createContainerParams.HostConfig.Mounts.Add(new Docker.DotNet.Models.Mount()
-                {
+                createContainerParams.HostConfig.Mounts.Add(new Docker.DotNet.Models.Mount() {
                     Type = "bind",
                     Source = tempPathForSolutionDirCopy,
                     Target = task.SolutionDirectoryInContainer,
@@ -131,8 +128,7 @@ namespace AHK.TaskRunner
                 if (task.ShouldFetchResult)
                 {
                     System.IO.Directory.CreateDirectory(task.ResultPathInMachine); // must exist for the mount
-                    createContainerParams.HostConfig.Mounts.Add(new Docker.DotNet.Models.Mount()
-                    {
+                    createContainerParams.HostConfig.Mounts.Add(new Docker.DotNet.Models.Mount() {
                         Type = "bind",
                         Source = task.ResultPathInMachine,
                         Target = task.ResultPathInContainer,
@@ -170,8 +166,7 @@ namespace AHK.TaskRunner
         {
             try
             {
-                var findImageResult = await docker.Images.ListImagesAsync(new Docker.DotNet.Models.ImagesListParameters()
-                {
+                var findImageResult = await docker.Images.ListImagesAsync(new Docker.DotNet.Models.ImagesListParameters() {
                     MatchName = task.ImageName
                 });
 
@@ -182,10 +177,9 @@ namespace AHK.TaskRunner
                 }
 
                 logger.LogTrace("Pulling image {ImageName}", task.ImageName);
-                await docker.Images.CreateImageAsync(new Docker.DotNet.Models.ImagesCreateParameters()
-                    {
-                        FromImage = task.ImageName
-                    },
+                await docker.Images.CreateImageAsync(new Docker.DotNet.Models.ImagesCreateParameters() {
+                    FromImage = task.ImageName
+                },
                     null,
                     new Progress<Docker.DotNet.Models.JSONMessage>());
                 logger.LogTrace("Pulling image {ImageName} completed", task.ImageName);

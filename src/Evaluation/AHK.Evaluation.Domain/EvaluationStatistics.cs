@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace AHK.Evaluation
+﻿namespace AHK.Evaluation
 {
     public class EvaluationStatistics
     {

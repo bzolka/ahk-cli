@@ -19,7 +19,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AHK.Evaluation.Domain", "Ev
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Graders", "Graders", "{76F71CBE-CE82-4246-80E0-AE5B93ED66B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AHK.Evaluation.Grader.Trx", "Evaluation\Graders\AHK.Evaluation.Grader.Trx\AHK.Evaluation.Grader.Trx.csproj", "{EB342B0C-DED8-4F02-BB6C-3A85721184DC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AHK.Evaluation.Grader.Trx", "Evaluation\Graders\AHK.Evaluation.Grader.Trx\AHK.Evaluation.Grader.Trx.csproj", "{EB342B0C-DED8-4F02-BB6C-3A85721184DC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8AB390BA-F1EB-4826-ABD8-87B144495550}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -7,7 +7,7 @@ namespace AHK.TaskRunner
     {
         public static async Task DirectoryCopy(string sourceDirectory, string destinationDirectory, bool recursive)
         {
-            if(!Directory.Exists(sourceDirectory))
+            if (!Directory.Exists(sourceDirectory))
                 throw new DirectoryNotFoundException("Source directory does not exist or could not be found: " + sourceDirectory);
 
             if (!Directory.Exists(destinationDirectory))

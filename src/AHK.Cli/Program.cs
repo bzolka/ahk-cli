@@ -20,15 +20,13 @@ namespace AHK
         {
             var cliApp = new Microsoft.Extensions.CommandLineUtils.CommandLineApplication(throwOnUnexpectedArg: false);
             cliApp.Command("run",
-                runCommandConfig =>
-                {
+                runCommandConfig => {
                     runCommandConfig.Description = "Kiertekeles futtatasa hallgatoi megoldasokon";
                     var konfigArg = runCommandConfig.Option("-k|--konfiguracio", "Futtatast leiro konfiguracios fajl", Microsoft.Extensions.CommandLineUtils.CommandOptionType.SingleValue);
                     var megoldasArg = runCommandConfig.Option("-m|--megoldas", "Hallgatoi megoldasokat tartalmazo konyvtar", Microsoft.Extensions.CommandLineUtils.CommandOptionType.SingleValue);
                     var eredmenyArg = runCommandConfig.Option("-e|--eredmeny", "Eredmenyek ebbe a konyvtarba keruljenek", Microsoft.Extensions.CommandLineUtils.CommandOptionType.SingleValue);
 
-                    runCommandConfig.OnExecute(async () =>
-                    {
+                    runCommandConfig.OnExecute(async () => {
                         if (!konfigArg.HasValue() || !megoldasArg.HasValue() || !eredmenyArg.HasValue())
                         {
                             runCommandConfig.ShowHelp();
@@ -41,8 +39,7 @@ namespace AHK
                 throwOnUnexpectedArg: false);
 
             cliApp.Command("clean",
-                cleanCommandConfig =>
-                {
+                cleanCommandConfig => {
                     cleanCommandConfig.Description = "Felbemaradt futtatasok eltakaritasa";
                     cleanCommandConfig.OnExecute(() => CleanCommand.Execute(loggerFactory.CreateLogger("Cleanup")));
                 },
