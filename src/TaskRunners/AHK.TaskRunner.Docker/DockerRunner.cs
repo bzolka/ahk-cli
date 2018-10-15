@@ -187,7 +187,7 @@ namespace AHK.TaskRunner
                         FromImage = task.ImageName
                     },
                     null,
-                    null);
+                    new Progress<Docker.DotNet.Models.JSONMessage>());
                 logger.LogTrace("Pulling image {ImageName} completed", task.ImageName);
             }
             catch (Exception ex)
