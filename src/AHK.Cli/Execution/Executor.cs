@@ -25,7 +25,7 @@ namespace AHK.Execution
                 await executeTask(t, evaluationResult);
 
                 ++finishedCount;
-                progress?.Report((int)((double)finishedCount / tasks.Count));
+                progress?.Report((int)((double)finishedCount / tasks.Count * 100));
             }
             return evaluationResult.GetEvaluationStatistics();
         }
