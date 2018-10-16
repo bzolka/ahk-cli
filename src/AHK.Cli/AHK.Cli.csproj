@@ -20,10 +20,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Evaluation\AHK.Evaluation.Domain\AHK.Evaluation.Domain.csproj" />
-    <ProjectReference Include="..\Evaluation\AHK.Evaluation.Service\AHK.Evaluation.Service.csproj" />
-    <ProjectReference Include="..\Evaluation\Graders\AHK.Evaluation.Grader.Trx\AHK.Evaluation.Grader.Trx.csproj" />
+    <ProjectReference Include="..\Graders\AHK.Grader.Domain\AHK.Grader.Domain.csproj" />
+    <ProjectReference Include="..\Graders\AHK.Grader.Trx\AHK.Grader.Trx.csproj" />
     <ProjectReference Include="..\TaskRunners\AHK.TaskRunner.Docker\AHK.TaskRunner.Docker.csproj" />
+    <ProjectReference Include="..\TaskRunners\AHK.TaskRunner.Domain\AHK.TaskRunner.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>

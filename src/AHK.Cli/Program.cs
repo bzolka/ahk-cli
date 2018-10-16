@@ -33,7 +33,7 @@ namespace AHK
                             return -1;
                         }
 
-                        return await RunCommand.Execute(konfigArg.Value(), megoldasArg.Value(), eredmenyArg.Value(), appConfig, loggerFactory);
+                        return await RunCommand.Execute(konfigArg.Value(), megoldasArg.Value(), eredmenyArg.Value(), appConfig, loggerFactory.CreateLogger("Run"));
                     });
                 },
                 throwOnUnexpectedArg: false);
@@ -59,9 +59,7 @@ namespace AHK
                                     .AddJsonFile(@"AppConfig.json", optional: true, reloadOnChange: false)
                                     .AddEnvironmentVariables("AHK_")
                                     .Build();
-            var appConfig = new AppConfig();
-            configRoot.Bind(appConfig);
-            return appConfig;
+            return configRoot.Get<AppConfig>();
         }
     }
 }

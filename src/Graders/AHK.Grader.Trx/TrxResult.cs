@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace AHK.Evaluation.Grader
+namespace AHK.Grader
 {
     public class TrxResult
     {

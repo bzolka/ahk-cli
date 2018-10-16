@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-    <RootNamespace>AHK.Evaluation</RootNamespace>
+    <RootNamespace>AHK.Evaluation.Grader</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,8 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\TaskRunners\AHK.TaskRunner.Domain\AHK.TaskRunner.Domain.csproj" />
-    <ProjectReference Include="..\AHK.Evaluation.Domain\AHK.Evaluation.Domain.csproj" />
+    <ProjectReference Include="..\AHK.Grader.Domain\AHK.Grader.Domain.csproj" />
   </ItemGroup>
 
 </Project>

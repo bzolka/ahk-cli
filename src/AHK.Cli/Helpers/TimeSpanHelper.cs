@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AHK.Evaluation
+namespace AHK
 {
     public static class TimeSpanHelper
     {

@@ -10,12 +10,12 @@ namespace AHK.TaskRunner
 {
     public class DockerRunner : ITaskRunner
     {
-        private readonly RunnerTask task;
-        private readonly ILogger<DockerRunner> logger;
+        private readonly DockerRunnerTask task;
+        private readonly ILogger logger;
         private readonly ITempPathProvider tempPathProvider;
         private readonly DockerClient docker;
 
-        public DockerRunner(RunnerTask task, ILogger<DockerRunner> logger, ITempPathProvider tempPathProvider = null)
+        public DockerRunner(DockerRunnerTask task, ILogger logger, ITempPathProvider tempPathProvider = null)
         {
             this.task = task ?? throw new ArgumentNullException(nameof(task));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));

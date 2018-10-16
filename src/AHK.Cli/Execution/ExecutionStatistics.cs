@@ -1,12 +1,12 @@
-﻿namespace AHK.Evaluation
+﻿namespace AHK.Execution
 {
-    public class EvaluationStatistics
+    public class ExecutionStatistics
     {
         public readonly int AllTasks;
         public readonly int ExecutedSuccessfully;
         public readonly int FailedExecution;
 
-        public EvaluationStatistics(int allTasks, int executedSuccessfully, int failedExecution)
+        public ExecutionStatistics(int allTasks, int executedSuccessfully, int failedExecution)
         {
             AllTasks = allTasks;
             ExecutedSuccessfully = executedSuccessfully;

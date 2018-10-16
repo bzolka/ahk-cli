@@ -1,53 +1,49 @@
 ﻿using System;
 using System.Threading.Tasks;
-using AHK.Evaluation.Grader;
+using AHK.Execution;
 using Microsoft.Extensions.Logging;
 
 namespace AHK
 {
     internal static class RunCommand
     {
-        public static async Task<int> Execute(string executionConfifFile, string assignmentsDir, string resultsDir, AppConfig appConfig, ILoggerFactory loggerFactory)
+        public static async Task<int> Execute(string executionConfifFile, string assignmentsDir, string resultsDir, AppConfig appConfig, ILogger logger)
         {
-            Console.WriteLine("Reading tasks...");
-
-            var tasksToEvaluate = EvaluationTaskReaderFromDisk.ReadFrom(executionConfifFile, assignmentsDir, resultsDir);
-
-            var es = new Evaluation.EvaluationService(tasksToEvaluate,
-                        new DockerRunnerFactory(loggerFactory),
-                        new TrxGraderFactory(),
-                        loggerFactory.CreateLogger<Evaluation.EvaluationService>(),
-                        appConfig.MaxTaskRuntime);
-
-            Console.WriteLine("Running evaluation...");
-
-            var execStatistics = await es.ProcessAllQueue();
-
-            Console.WriteLine("Finished.");
-            if (execStatistics.HasFailed())
+            try
             {
-                Console.WriteLine("Some evaluations FAILED (indicates program or configuration error)");
-                Console.WriteLine($"Solution tested: {execStatistics.AllTasks} / {execStatistics.ExecutedSuccessfully} executed without issues, {execStatistics.FailedExecution} FAILED to execute");
-                return -1;
+                Console.WriteLine("Megoldasok beolvasasa...");
+                var jobsLoader = new JobsLoader(logger);
+                var tasks = jobsLoader.ReadFrom(executionConfifFile, assignmentsDir, resultsDir);
+                Console.WriteLine("Megoldasok beolvasasa kesz.");
+
+                Console.WriteLine("Kiertekeles futtatasa...");
+                var executor = new Executor(logger, appConfig.MaxTaskRuntime);
+                var execStatistics = await executor.Execute(tasks, new ConsoleProgress());
+                Console.WriteLine("Kiertekeles futtatasa kesz.");
+
+                if (execStatistics.HasFailed())
+                {
+                    Console.WriteLine("A kiertekeles kozben hibak voltak; alkalmazas vagy konfiguracios problema lehet.");
+                    Console.WriteLine($"Osszesen {execStatistics.AllTasks} megoldas / {execStatistics.ExecutedSuccessfully} sikeresen kiertekelve, {execStatistics.FailedExecution} kiertekelese SIKERTELEN.");
+                    return -1;
+                }
+                else
+                {
+                    Console.WriteLine($"Osszesen {execStatistics.ExecutedSuccessfully} megoldas kiertelekese elkeszult.");
+                    return 0;
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine($"Executed {execStatistics.ExecutedSuccessfully} evaluations");
-                return 0;
+                logger.LogError(ex, "Futasi hiba.");
+                return -1;
             }
         }
 
-        private class DockerRunnerFactory : TaskRunner.ITaskRunnerFactory
+        private class ConsoleProgress : IProgress<int>
         {
-            private ILoggerFactory loggerFactory;
-
-            public DockerRunnerFactory(ILoggerFactory loggerFactory)
-                => this.loggerFactory = loggerFactory;
-
-            public Task Cleanup(ILogger logger) => TaskRunner.DockerCleanup.Cleanup(logger);
-
-            public TaskRunner.ITaskRunner CreateRunner(TaskRunner.RunnerTask task)
-                => new TaskRunner.DockerRunner(task, loggerFactory.CreateLogger<TaskRunner.DockerRunner>());
+            public void Report(int value)
+                => Console.WriteLine($"Kiertekeles: {value}%");
         }
     }
 }

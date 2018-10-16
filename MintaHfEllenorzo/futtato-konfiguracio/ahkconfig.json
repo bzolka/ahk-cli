@@ -1,8 +1,12 @@
 {
-    "imageName": "aut/mintahf1",
-    "solutionInContainer": "/megoldas",
-    "resultInContainer": "/eredmeny",
-    "evaluationTimeout": "00:00:30",
-    "trxFileName": "testresult.trx",
-    "resultFileName": "eredmenyek.csv"
+    "docker": {
+        "imageName": "aut/mintahf1",
+        "solutionInContainer": "/megoldas",
+        "resultInContainer": "/eredmeny",
+        "evaluationTimeout": "00:00:30"
+    },
+    "trx": {
+        "trxFileName": "testresult.trx",
+        "resultFileName": "eredmenyek.csv"
+    }
 }

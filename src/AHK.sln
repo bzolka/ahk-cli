@@ -11,20 +11,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AHK.TaskRunner.Domain", "Ta
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TaskRunners", "TaskRunners", "{6FA72F15-46EA-4EEC-8DBD-816DF603BA77}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Evaluation", "Evaluation", "{B4DF083B-88E4-4213-AD8B-E4A4D1BE2DCF}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AHK.Evaluation.Service", "Evaluation\AHK.Evaluation.Service\AHK.Evaluation.Service.csproj", "{8A3E9E2E-D176-4BD1-B7FF-A98FE16813CE}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AHK.Evaluation.Domain", "Evaluation\AHK.Evaluation.Domain\AHK.Evaluation.Domain.csproj", "{BE1C2262-EE80-4F97-B3C2-D55C0CE3F63F}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Graders", "Graders", "{76F71CBE-CE82-4246-80E0-AE5B93ED66B2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AHK.Evaluation.Grader.Trx", "Evaluation\Graders\AHK.Evaluation.Grader.Trx\AHK.Evaluation.Grader.Trx.csproj", "{EB342B0C-DED8-4F02-BB6C-3A85721184DC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AHK.Grader.Trx", "Graders\AHK.Grader.Trx\AHK.Grader.Trx.csproj", "{EB342B0C-DED8-4F02-BB6C-3A85721184DC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8AB390BA-F1EB-4826-ABD8-87B144495550}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AHK.Grader.Domain", "Graders\AHK.Grader.Domain\AHK.Grader.Domain.csproj", "{995A0B88-F64E-4BA1-B5C7-DE290E4795B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,18 +40,14 @@ Global
 		{E8CB87B6-1BC3-45C0-BD22-99194DC35B75}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E8CB87B6-1BC3-45C0-BD22-99194DC35B75}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E8CB87B6-1BC3-45C0-BD22-99194DC35B75}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8A3E9E2E-D176-4BD1-B7FF-A98FE16813CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8A3E9E2E-D176-4BD1-B7FF-A98FE16813CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8A3E9E2E-D176-4BD1-B7FF-A98FE16813CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8A3E9E2E-D176-4BD1-B7FF-A98FE16813CE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BE1C2262-EE80-4F97-B3C2-D55C0CE3F63F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BE1C2262-EE80-4F97-B3C2-D55C0CE3F63F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BE1C2262-EE80-4F97-B3C2-D55C0CE3F63F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BE1C2262-EE80-4F97-B3C2-D55C0CE3F63F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EB342B0C-DED8-4F02-BB6C-3A85721184DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EB342B0C-DED8-4F02-BB6C-3A85721184DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB342B0C-DED8-4F02-BB6C-3A85721184DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EB342B0C-DED8-4F02-BB6C-3A85721184DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{995A0B88-F64E-4BA1-B5C7-DE290E4795B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{995A0B88-F64E-4BA1-B5C7-DE290E4795B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{995A0B88-F64E-4BA1-B5C7-DE290E4795B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{995A0B88-F64E-4BA1-B5C7-DE290E4795B8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -63,10 +55,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{9BFE0E99-3A70-4CF0-BE3D-CCC42EBBA2B0} = {6FA72F15-46EA-4EEC-8DBD-816DF603BA77}
 		{E8CB87B6-1BC3-45C0-BD22-99194DC35B75} = {6FA72F15-46EA-4EEC-8DBD-816DF603BA77}
-		{8A3E9E2E-D176-4BD1-B7FF-A98FE16813CE} = {B4DF083B-88E4-4213-AD8B-E4A4D1BE2DCF}
-		{BE1C2262-EE80-4F97-B3C2-D55C0CE3F63F} = {B4DF083B-88E4-4213-AD8B-E4A4D1BE2DCF}
-		{76F71CBE-CE82-4246-80E0-AE5B93ED66B2} = {B4DF083B-88E4-4213-AD8B-E4A4D1BE2DCF}
 		{EB342B0C-DED8-4F02-BB6C-3A85721184DC} = {76F71CBE-CE82-4246-80E0-AE5B93ED66B2}
+		{995A0B88-F64E-4BA1-B5C7-DE290E4795B8} = {76F71CBE-CE82-4246-80E0-AE5B93ED66B2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2CB3A777-8003-4994-800B-8FE8F7C0A890}

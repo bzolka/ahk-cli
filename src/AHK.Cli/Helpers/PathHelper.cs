@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 
-namespace AHK.Evaluation
+namespace AHK
 {
     internal static class PathHelper
     {

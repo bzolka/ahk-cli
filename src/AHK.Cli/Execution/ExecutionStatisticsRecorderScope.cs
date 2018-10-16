@@ -1,15 +1,15 @@
 ﻿using System;
 
-namespace AHK.Evaluation
+namespace AHK.Execution
 {
-    partial class EvaluationStatisticsRecorder
+    partial class ExecutionStatisticsRecorder
     {
-        public class EvaluationStatisticsRecorderScope : IDisposable
+        public class ExecutionStatisticsRecorderScope : IDisposable
         {
-            private readonly EvaluationStatisticsRecorder recorder;
+            private readonly ExecutionStatisticsRecorder recorder;
             private bool committed = false;
 
-            public EvaluationStatisticsRecorderScope(EvaluationStatisticsRecorder recorder)
+            public ExecutionStatisticsRecorderScope(ExecutionStatisticsRecorder recorder)
                 => this.recorder = recorder ?? throw new ArgumentNullException(nameof(recorder));
 
             public void Dispose()
