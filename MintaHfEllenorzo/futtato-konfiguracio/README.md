@@ -28,6 +28,14 @@ Megadja a maximális futási időt.
     "evaluationTimeout": "00:00:30"
 ```
 
+Opcionális paraméterek a konténer létrehozásához. Tipikusan pl. használható memória mérete. Minden elem egy kulcs-érték pár, a kulcs a tulajdonság neve. A tulajdonság neve egy a [Docker Engine API CreateContainer](https://docs.docker.com/engine/api/v1.30/#operation/ContainerCreate) hívásának paraméterei közül. (Csak skalár értékekre és string-ből a szükséges típusra konvertálható tulajdonságokra működik.)
+
+```json
+    "containerParams":{
+            "memory": "268435456"
+        }
+```
+
 Az eredmény könyvtárban elvárt TRX fájl a pontozáshoz.
 
 ```json

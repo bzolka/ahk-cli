@@ -38,7 +38,7 @@ namespace AHK
             var studentId = Path.GetFileName(solutionDirectoryPath);
             var resultsDir = Path.Combine(resultsBaseDir, studentId);
             return new ExecutionTask(studentId, solutionDirectoryPath, resultsDir,
-                                     config.Docker.ImageName, config.Docker.SolutionInContainer, config.Docker.ResultInContainer, config.Docker.EvaluationTimeout,
+                                     config.Docker.ImageName, config.Docker.SolutionInContainer, config.Docker.ResultInContainer, config.Docker.EvaluationTimeout, config.Docker.ContainerParams,
                                      config.Trx.TrxFileName, config.Trx.ResultFileName);
         }
 

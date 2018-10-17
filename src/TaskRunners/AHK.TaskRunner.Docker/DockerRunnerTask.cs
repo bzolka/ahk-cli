@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace AHK.TaskRunner
 {
@@ -9,13 +10,15 @@ namespace AHK.TaskRunner
         public readonly string SolutionDirectoryInContainer;
         public readonly string ResultPathInMachine;
         public readonly string ResultPathInContainer;
+        public readonly IReadOnlyDictionary<string, string> ContainerParams;
 
         public DockerRunnerTask(
                     Guid taskId,
                     string imageName,
                     string solutionDirrectoryInMachine, string solutionDirectoryInContainer,
                     string resultPathInMachine, string resultPathInContainer,
-                    TimeSpan evaluationTimeout)
+                    TimeSpan evaluationTimeout,
+                    IReadOnlyDictionary<string, string> containerParams = null)
             : base(taskId, evaluationTimeout)
         {
             this.ImageName = imageName;
@@ -23,6 +26,7 @@ namespace AHK.TaskRunner
             this.SolutionDirectoryInContainer = solutionDirectoryInContainer;
             this.ResultPathInMachine = resultPathInMachine;
             this.ResultPathInContainer = resultPathInContainer;
+            this.ContainerParams = containerParams ?? new Dictionary<string, string>();
         }
 
         public bool HasResultDirectory => !string.IsNullOrEmpty(ResultPathInMachine);

@@ -79,7 +79,8 @@ namespace AHK.Execution
                                                task.DockerImageName,
                                                task.SolutionPath, task.DockerSolutionDirectoryInContainer,
                                                task.ResultArtifactPath, task.DockerResultPathInContainer,
-                                               TimeSpanHelper.Smaller(task.DockerTimeout, maxTimeout));
+                                               TimeSpanHelper.Smaller(task.DockerTimeout, maxTimeout),
+                                               task.DockerImageParams);
 
         private Grader.TrxGraderTask createTrxTask(ExecutionTask task)
             => new Grader.TrxGraderTask(task.TaskId, task.StudentId, System.IO.Path.Combine(task.ResultArtifactPath, task.TrxFileName), task.TrxOutputFile);

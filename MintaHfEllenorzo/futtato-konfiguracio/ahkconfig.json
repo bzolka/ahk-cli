@@ -3,7 +3,10 @@
         "imageName": "aut/mintahf1",
         "solutionInContainer": "/megoldas",
         "resultInContainer": "/eredmeny",
-        "evaluationTimeout": "00:00:30"
+        "evaluationTimeout": "00:00:30",
+        "containerParams":{
+            "memory": "268435456"
+        }
     },
     "trx": {
         "trxFileName": "testresult.trx",

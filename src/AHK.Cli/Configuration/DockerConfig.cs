@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 
 namespace AHK.Configuration
@@ -9,6 +10,7 @@ namespace AHK.Configuration
         public string SolutionInContainer { get; set; }
         public string ResultInContainer { get; set; }
         public TimeSpan EvaluationTimeout { get; set; } = TimeSpan.FromMinutes(3);
+        public Dictionary<string, string> ContainerParams { get; set; }
 
         public bool Validate(ILogger logger)
         {

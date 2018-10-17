@@ -116,6 +116,9 @@ namespace AHK.TaskRunner
                     }
                 };
 
+                if (task.ContainerParams != null && task.ContainerParams.Any())
+                    setImageParameters(createContainerParams, task.ContainerParams);
+
                 System.IO.Directory.CreateDirectory(tempPathForSolutionDirCopy);
                 await DirectoryHelper.DirectoryCopy(task.SolutionDirectoryInMachine, tempPathForSolutionDirCopy, true);
                 createContainerParams.HostConfig.Mounts.Add(new Docker.DotNet.Models.Mount() {
@@ -152,6 +155,52 @@ namespace AHK.TaskRunner
             catch (DockerApiException ex)
             {
                 throw new Exception($"Container create failed with error: {ex.Message}", ex);
+            }
+        }
+
+        private void setImageParameters(Docker.DotNet.Models.CreateContainerParameters createContainerParams, IReadOnlyDictionary<string, string> containerParams)
+        {
+            foreach (var param in containerParams)
+            {
+                try
+                {
+                    if (trySetDynamicPropertyOn(createContainerParams, param.Key, param.Value))
+                        continue;
+
+                    if (trySetDynamicPropertyOn(createContainerParams.HostConfig, param.Key, param.Value))
+                        continue;
+
+                    logger.LogWarning("Unknown container parameter {ParamName}", param.Key);
+                }
+                catch
+                {
+                    logger.LogWarning("Cannot set container parameter {ParamName} to value {ParamVale}", param.Key, param.Value);
+                }
+            }
+        }
+
+        private bool trySetDynamicPropertyOn(object objectToSetOn, string propertyName, object propertyValue)
+        {
+            if (objectToSetOn == null)
+                return false;
+
+            if (string.IsNullOrEmpty(propertyName))
+                return false;
+
+            if (Char.IsLower(propertyName[0]))
+                propertyName = char.ToUpper(propertyName[0]).ToString() + propertyName.Substring(1);
+
+            var ccpType = objectToSetOn.GetType();
+            var prop = ccpType.GetProperty(propertyName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+            if (prop != null)
+            {
+                var valueConverted = Convert.ChangeType(propertyValue, prop.PropertyType);
+                prop.SetValue(objectToSetOn, valueConverted);
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
