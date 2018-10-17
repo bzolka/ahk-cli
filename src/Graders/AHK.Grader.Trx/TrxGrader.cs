@@ -30,7 +30,7 @@ namespace AHK.Grader
         }
 
         public Task GradeFailedExecution(string errorMessage)
-            => writeLine($"{task.StudentId};{DateTime.Now};futasi hiba: {errorMessage}");
+            => writeLine($"{task.StudentId};futasi hiba: {errorMessage}");
 
         private async Task processTrxFile(string trxFilePath)
         {
@@ -49,10 +49,10 @@ namespace AHK.Grader
         }
 
         private string formatResult(int allTestsExecuted, int testsPassed)
-            => $"{task.StudentId};{DateTime.Now};{allTestsExecuted};{testsPassed}";
+            => $"{task.StudentId};{allTestsExecuted};{testsPassed}";
 
         private Task writeCsvFileHeader()
-            => writeLine("HallgatoAzonosito;FuttatasDatum;OsszesTeszt;SikeresTeszt");
+            => writeLine("HallgatoAzonosito;OsszesTeszt;SikeresTeszt");
 
         private Task writeLine(string line)
             => System.IO.File.AppendAllTextAsync(task.OutputFilePath, line.Replace(Environment.NewLine, " ") + Environment.NewLine, System.Text.Encoding.UTF8);

@@ -7,6 +7,6 @@
     },
     "trx": {
         "trxFileName": "testresult.trx",
-        "resultFileName": "eredmenyek.csv"
+        "resultFileName": "eredmenyek-{datum}.csv"
     }
 }

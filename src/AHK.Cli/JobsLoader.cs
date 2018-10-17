@@ -11,6 +11,7 @@ namespace AHK
     internal class JobsLoader
     {
         private readonly ILogger logger;
+        private readonly DateTime dateTime = DateTime.Now;
 
         public JobsLoader(ILogger logger)
         {
@@ -47,6 +48,11 @@ namespace AHK
             var c = configurationRoot.Get<AHKJobConfig>();
             if (!c.Validate(logger))
                 throw new Exception("A futtato konfiguracios fajlban hiba van");
+
+            c.Trx.ResultFileName = c.Trx.ResultFileName
+                                        .Replace("{date}", dateTime.ToPathCompatibleString())
+                                        .Replace("{datum}", dateTime.ToPathCompatibleString());
+
             return c;
         }
 
@@ -86,7 +92,7 @@ namespace AHK
             }
         }
 
-        private static string validateResultsDir(string path)
+        private string validateResultsDir(string path)
         {
             if (string.IsNullOrEmpty(path))
                 throw new Exception("Eredmenyek konyvtara nincs megadva");
@@ -95,8 +101,8 @@ namespace AHK
                 throw new Exception($"Eredmenyek konyvtara '{path}' nem ervenyes konyvtarnev");
 
             path = Path.GetFullPath(path
-                .Replace("{date}", DateTime.Now.ToPathCompatibleString())
-                .Replace("{datum}", DateTime.Now.ToPathCompatibleString()));
+                .Replace("{date}", dateTime.ToPathCompatibleString())
+                .Replace("{datum}", dateTime.ToPathCompatibleString()));
 
             var originalPath = path;
             int counter = 0;
