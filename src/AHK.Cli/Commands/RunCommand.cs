@@ -7,18 +7,18 @@ namespace AHK
 {
     internal static class RunCommand
     {
-        public static async Task<int> Execute(string executionConfifFile, string assignmentsDir, string resultsDir, AppConfig appConfig, ILogger logger)
+        public static async Task<int> Execute(string executionConfigFile, string assignmentsDir, string resultsDir, AppConfig appConfig, ILogger logger)
         {
             try
             {
                 Console.WriteLine("Megoldasok beolvasasa...");
                 var jobsLoader = new JobsLoader(logger);
-                var tasks = jobsLoader.ReadFrom(executionConfifFile, assignmentsDir, resultsDir);
+                var runConfig = jobsLoader.ReadFrom(executionConfigFile, assignmentsDir, resultsDir);
                 Console.WriteLine("Megoldasok beolvasasa kesz.");
 
                 Console.WriteLine("Kiertekeles futtatasa...");
                 var executor = new Executor(logger, appConfig.MaxTaskRuntime);
-                var execStatistics = await executor.Execute(tasks, new ConsoleProgress());
+                var execStatistics = await executor.Execute(runConfig, new ConsoleProgress());
                 Console.WriteLine("Kiertekeles futtatasa kesz.");
 
                 if (execStatistics.HasFailed())

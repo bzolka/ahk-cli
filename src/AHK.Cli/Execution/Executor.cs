@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
@@ -16,21 +15,27 @@ namespace AHK.Execution
             this.maxTimeout = maxTimeout ?? TimeSpan.FromMinutes(8);
         }
 
-        public async Task<ExecutionStatistics> Execute(IReadOnlyList<ExecutionTask> tasks, IProgress<int> progress = null)
+        public async Task<ExecutionStatistics> Execute(RunConfig runConfig, IProgress<int> progress = null)
         {
-            var evaluationResult = new ExecutionStatisticsRecorder();
-            int finishedCount = 0;
-            foreach (var t in tasks)
-            {
-                await executeTask(t, evaluationResult);
+            if (runConfig == null)
+                throw new ArgumentNullException(nameof(runConfig));
 
-                ++finishedCount;
-                progress?.Report((int)((double)finishedCount / tasks.Count * 100));
+            using (var xlsxWriter = new ExcelResultsWriter.XlsxResultsWriter(runConfig.ResultsXlsxFileName))
+            {
+                var evaluationResult = new ExecutionStatisticsRecorder();
+                int finishedCount = 0;
+                foreach (var t in runConfig.Tasks)
+                {
+                    await executeTask(t, evaluationResult, xlsxWriter);
+
+                    ++finishedCount;
+                    progress?.Report((int)((double)finishedCount / runConfig.Tasks.Count * 100));
+                }
+                return evaluationResult.GetEvaluationStatistics();
             }
-            return evaluationResult.GetEvaluationStatistics();
         }
 
-        private async Task executeTask(ExecutionTask task, ExecutionStatisticsRecorder evaluationStatisticsRecorder)
+        private async Task executeTask(ExecutionTask task, ExecutionStatisticsRecorder evaluationStatisticsRecorder, ExcelResultsWriter.XlsxResultsWriter resultsWriter)
         {
             using (logger.BeginScope("Evaluating task {TaskId}; StudentId {StudentId}", task.TaskId, task.StudentId))
             using (var evaluationStatScope = evaluationStatisticsRecorder.OnExecutionStarted())
@@ -46,18 +51,26 @@ namespace AHK.Execution
                         var runnerResult = await taskRunner.Run();
                         logger.LogTrace("Finished runner");
 
-                        using (var grader = new Grader.TrxGrader(createTrxTask(task), logger))
+                        if (runnerResult.HadError())
                         {
-                            if (runnerResult.HadError())
+                            evaluationStatScope.OnExecutionFailed();
+                            logger.LogError(runnerResult.Exception, "Evaluation task failed");
+                        }
+                        else
+                        {
+                            using (var grader = new Grader.TrxGrader(createTrxTask(task), logger))
                             {
-                                await grader.GradeFailedExecution(runnerResult.Exception.Message);
-                                evaluationStatScope.OnExecutionFailed();
-                                logger.LogError(runnerResult.Exception, "Evaluation task failed");
-                            }
-                            else
-                            {
-                                await grader.GradeResult();
-                                evaluationStatScope.OnExecutionCompleted();
+                                var graderResult = await grader.GradeResult();
+                                if (!graderResult.GradingSuccessful)
+                                {
+                                    evaluationStatScope.OnExecutionFailed();
+                                    logger.LogError(runnerResult.Exception, "Grader failed");
+                                }
+                                else
+                                {
+                                    resultsWriter.Write(task.StudentId, graderResult);
+                                    evaluationStatScope.OnExecutionCompleted();
+                                }
                             }
                         }
                     }
@@ -83,6 +96,6 @@ namespace AHK.Execution
                                                task.DockerImageParams);
 
         private Grader.TrxGraderTask createTrxTask(ExecutionTask task)
-            => new Grader.TrxGraderTask(task.TaskId, task.StudentId, System.IO.Path.Combine(task.ResultArtifactPath, task.TrxFileName), task.TrxOutputFile);
+            => new Grader.TrxGraderTask(task.TaskId, task.StudentId, System.IO.Path.Combine(task.ResultArtifactPath, task.TrxFileName));
     }
 }

@@ -34,7 +34,13 @@ namespace AHK.Grader
                     if (outcome.Equals("passed", StringComparison.OrdinalIgnoreCase))
                         ++passed;
                     else
-                        failedNames.Add(testName);
+                    {
+                        var messages = utr.Descendants().Where(x => x.Name.LocalName == "Message").Select(n => n.Value).ToArray();
+                        if (messages.Length == 0)
+                            failedNames.Add(testName);
+                        else
+                            failedNames.Add($"{testName}: {string.Join(' ', messages)}");
+                    }
                 }
 
                 return new TrxResult(total, passed, failedNames);

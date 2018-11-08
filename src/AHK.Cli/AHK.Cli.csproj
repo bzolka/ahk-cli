@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AHK.ExcelResultsWriter\AHK.ExcelResultsWriter.csproj" />
     <ProjectReference Include="..\Graders\AHK.Grader.Domain\AHK.Grader.Domain.csproj" />
     <ProjectReference Include="..\Graders\AHK.Grader.Trx\AHK.Grader.Trx.csproj" />
     <ProjectReference Include="..\TaskRunners\AHK.TaskRunner.Docker\AHK.TaskRunner.Docker.csproj" />

@@ -9,7 +9,7 @@
         }
     },
     "trx": {
-        "trxFileName": "testresult.trx",
-        "resultFileName": "eredmenyek-{datum}.csv"
-    }
+        "trxFileName": "testresult.trx"
+    },
+    "resultXlsxName": "eredmenyek-{datum}.xlsx"
 }

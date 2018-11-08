@@ -18,7 +18,7 @@ namespace AHK
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public IReadOnlyList<ExecutionTask> ReadFrom(string configFileFromUser, string assignmentsDirFromUser, string resultsDirFromUser)
+        public RunConfig ReadFrom(string configFileFromUser, string assignmentsDirFromUser, string resultsDirFromUser)
         {
             var configFilePath = validateConfigFile(configFileFromUser);
             var assignmentsDir = validateAssignmentsDir(assignmentsDirFromUser);
@@ -30,7 +30,7 @@ namespace AHK
             foreach (var assignmentSolutionDir in Directory.EnumerateDirectories(assignmentsDir))
                 evaluationTasks.Add(createTaskFrom(config, assignmentSolutionDir, resultsDir));
 
-            return evaluationTasks;
+            return new RunConfig(evaluationTasks, config.ResultXlsxName);
         }
 
         private ExecutionTask createTaskFrom(AHKJobConfig config, string solutionDirectoryPath, string resultsBaseDir)
@@ -39,7 +39,7 @@ namespace AHK
             var resultsDir = Path.Combine(resultsBaseDir, studentId);
             return new ExecutionTask(studentId, solutionDirectoryPath, resultsDir,
                                      config.Docker.ImageName, config.Docker.SolutionInContainer, config.Docker.ResultInContainer, config.Docker.EvaluationTimeout, config.Docker.ContainerParams,
-                                     config.Trx.TrxFileName, config.Trx.ResultFileName);
+                                     config.Trx.TrxFileName);
         }
 
         private AHKJobConfig getAndValidateConfig(string configFilePath)
@@ -49,9 +49,9 @@ namespace AHK
             if (!c.Validate(logger))
                 throw new Exception("A futtato konfiguracios fajlban hiba van");
 
-            c.Trx.ResultFileName = c.Trx.ResultFileName
-                                        .Replace("{date}", dateTime.ToPathCompatibleString())
-                                        .Replace("{datum}", dateTime.ToPathCompatibleString());
+            c.ResultXlsxName = c.ResultXlsxName
+                                    .Replace("{date}", dateTime.ToPathCompatibleString())
+                                    .Replace("{datum}", dateTime.ToPathCompatibleString());
 
             return c;
         }

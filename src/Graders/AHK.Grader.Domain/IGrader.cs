@@ -5,7 +5,6 @@ namespace AHK.Grader
 {
     public interface IGrader : IDisposable
     {
-        Task GradeResult();
-        Task GradeFailedExecution(string errorMessage);
+        Task<GraderResult> GradeResult();
     }
 }

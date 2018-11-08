@@ -6,13 +6,13 @@ namespace AHK.Grader
     {
         public readonly int Total;
         public readonly int Passed;
-        public readonly IReadOnlyList<string> Failed;
+        public readonly IReadOnlyList<string> FailedTestNames;
 
         public TrxResult(int total, int passed, IReadOnlyList<string> failedNames)
         {
             this.Total = total;
             this.Passed = passed;
-            this.Failed = failedNames ?? new string[0];
+            this.FailedTestNames = failedNames ?? new string[0];
         }
     }
 }
