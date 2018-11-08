@@ -40,10 +40,48 @@ namespace AHK
         private ExecutionTask createTaskFrom(AHKJobConfig config, string solutionPath, string resultsBaseDir)
         {
             var studentId = Path.GetFileNameWithoutExtension(solutionPath);
+            tryGetStudentIdFromSolutionDir(solutionPath, ref studentId);
+
             var resultsDir = Path.Combine(resultsBaseDir, studentId);
             return new ExecutionTask(studentId, solutionPath, resultsDir,
                                      config.Docker.ImageName, config.Docker.SolutionInContainer, config.Docker.ResultInContainer, config.Docker.EvaluationTimeout, config.Docker.ContainerParams,
                                      config.Trx.TrxFileName);
+        }
+
+        private static void tryGetStudentIdFromSolutionDir(string solutionPath, ref string studentId)
+        {
+            string neptunKodString = null;
+            if (Directory.Exists(solutionPath))
+            {
+                var neptunKodTxtFile = Directory.EnumerateFiles(solutionPath, "*.txt", SearchOption.TopDirectoryOnly)
+                                                        .FirstOrDefault(f => Path.GetFileNameWithoutExtension(f).Equals("neptun", StringComparison.OrdinalIgnoreCase));
+                if (neptunKodTxtFile == null)
+                    return;
+
+                neptunKodString = File.ReadAllText(neptunKodTxtFile);
+            }
+            else if (File.Exists(solutionPath))
+            {
+                try
+                {
+                    using (var zipFile = System.IO.Compression.ZipFile.OpenRead(solutionPath))
+                    {
+                        var neptunKodZipEntry = zipFile.Entries.FirstOrDefault(f => Path.GetFileNameWithoutExtension(f.Name).Equals("neptun.txt", StringComparison.OrdinalIgnoreCase));
+                        if (neptunKodZipEntry == null)
+                            return;
+
+                        using (var neptunKodZipEntryReader = new StreamReader(neptunKodZipEntry.Open()))
+                            neptunKodString = neptunKodZipEntryReader.ReadToEnd();
+                    }
+                }
+                catch
+                {
+                    return;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(neptunKodString) && !string.IsNullOrWhiteSpace(neptunKodString))
+                studentId = neptunKodString.Trim();
         }
 
         private AHKJobConfig getAndValidateConfig(string configFilePath)
