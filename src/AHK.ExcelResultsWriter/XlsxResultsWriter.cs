@@ -39,6 +39,8 @@ namespace AHK.ExcelResultsWriter
             row.CreateCell(1, CellType.String).SetCellValue(studentId);
             row.CreateCell(2, CellType.String).SetCellValue(formatIssuesForCell(graderResult.FailedTestNames));
             row.CreateCell(3, CellType.String).SetCellValue(graderResult.Grade);
+
+            saveFile();
         }
 
         private string formatIssuesForCell(IReadOnlyList<string> failedTestNames)
@@ -49,10 +51,12 @@ namespace AHK.ExcelResultsWriter
                 return "Az alábbi tesztek nem sikerültek:" + Environment.NewLine + string.Join(Environment.NewLine, failedTestNames);
         }
 
-        public void Dispose()
+        private void saveFile()
         {
             using (var fs = File.Create(resultsXlsxFileName))
                 wb.Write(fs);
         }
+
+        public void Dispose() { }
     }
 }
