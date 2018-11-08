@@ -23,7 +23,13 @@ namespace AHK.TaskRunner
             if (recursive)
             {
                 foreach (var subdir in Directory.GetDirectories(sourceDirectory))
+                {
+                    // do not need the .git directory, that is not part of the final solution
+                    if (Path.GetFileName(subdir) == ".git")
+                        continue;
+
                     await DirectoryCopy(subdir, Path.Combine(destinationDirectory, Path.GetFileName(subdir)), recursive);
+                }
             }
         }
     }

@@ -31,7 +31,8 @@ namespace AHK
             foreach (var assignmentSolution in enumeratePossibleAssignmentSolutions(assignmentsDir))
                 evaluationTasks.Add(createTaskFrom(config, assignmentSolution, resultsDir));
 
-            return new RunConfig(evaluationTasks, config.ResultXlsxName);
+            var resultsXlsxFileName = Path.Combine(resultsDir, "eredmenyek.xlsx");
+            return new RunConfig(evaluationTasks, resultsXlsxFileName);
         }
 
         private IEnumerable<string> enumeratePossibleAssignmentSolutions(string assignmentsDir) =>
@@ -90,11 +91,6 @@ namespace AHK
             var c = configurationRoot.Get<AHKJobConfig>();
             if (!c.Validate(logger))
                 throw new Exception("A futtato konfiguracios fajlban hiba van");
-
-            c.ResultXlsxName = c.ResultXlsxName
-                                    .Replace("{date}", dateTime.ToPathCompatibleString())
-                                    .Replace("{datum}", dateTime.ToPathCompatibleString());
-
             return c;
         }
 

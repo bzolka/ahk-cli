@@ -41,9 +41,3 @@ Az eredmény könyvtárban elvárt TRX fájl a pontozáshoz.
 ```json
     "trxFileName": "testresult.trx"
 ```
-
-A kiértékelések összegzését tartalmazó Excel fájl neve. A fájl közvetlenül importálható a tanszéki portálra.
-
-```json
-    "resultXlsxName": "eremenyek-{datum}.xlsx
-```
