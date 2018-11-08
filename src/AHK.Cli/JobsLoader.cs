@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using AHK.Configuration;
 using AHK.Execution;
 using Microsoft.Extensions.Configuration;
@@ -27,17 +28,20 @@ namespace AHK
             var config = getAndValidateConfig(configFilePath);
 
             var evaluationTasks = new List<ExecutionTask>();
-            foreach (var assignmentSolutionDir in Directory.EnumerateDirectories(assignmentsDir))
-                evaluationTasks.Add(createTaskFrom(config, assignmentSolutionDir, resultsDir));
+            foreach (var assignmentSolution in enumeratePossibleAssignmentSolutions(assignmentsDir))
+                evaluationTasks.Add(createTaskFrom(config, assignmentSolution, resultsDir));
 
             return new RunConfig(evaluationTasks, config.ResultXlsxName);
         }
 
-        private ExecutionTask createTaskFrom(AHKJobConfig config, string solutionDirectoryPath, string resultsBaseDir)
+        private IEnumerable<string> enumeratePossibleAssignmentSolutions(string assignmentsDir) =>
+            Directory.EnumerateDirectories(assignmentsDir).Union(Directory.EnumerateFiles(assignmentsDir, "*.zip"));
+
+        private ExecutionTask createTaskFrom(AHKJobConfig config, string solutionPath, string resultsBaseDir)
         {
-            var studentId = Path.GetFileName(solutionDirectoryPath);
+            var studentId = Path.GetFileNameWithoutExtension(solutionPath);
             var resultsDir = Path.Combine(resultsBaseDir, studentId);
-            return new ExecutionTask(studentId, solutionDirectoryPath, resultsDir,
+            return new ExecutionTask(studentId, solutionPath, resultsDir,
                                      config.Docker.ImageName, config.Docker.SolutionInContainer, config.Docker.ResultInContainer, config.Docker.EvaluationTimeout, config.Docker.ContainerParams,
                                      config.Trx.TrxFileName);
         }
@@ -65,8 +69,8 @@ namespace AHK
 
             if (!Directory.Exists(absolutePath))
                 throw new Exception($"Megoldasok konyvtara '{absolutePath}' nem letezik");
-            if (Directory.GetDirectories(absolutePath).Length == 0)
-                throw new Exception($"Megoldasok konyvtaraban '{absolutePath}' nincsenek alkonyvtarak a hallgatoi megoldasokkal");
+            if (Directory.GetDirectories(absolutePath).Length + Directory.GetFiles(absolutePath, "*.zip").Length == 0)
+                throw new Exception($"Megoldasok konyvtaraban '{absolutePath}' nincsenek alkonyvtarak vagy zipek a hallgatoi megoldasokkal");
 
             return absolutePath;
         }

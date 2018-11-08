@@ -120,10 +120,11 @@ namespace AHK.TaskRunner
                     setImageParameters(createContainerParams, task.ContainerParams);
 
                 System.IO.Directory.CreateDirectory(tempPathForSolutionDirCopy);
-                await DirectoryHelper.DirectoryCopy(task.SolutionDirectoryInMachine, tempPathForSolutionDirCopy, true);
+                var effectiveSolutionFolderToMount = await extractSolutionGetEffectiveDirectory(task.SolutionDirectoryInMachine, tempPathForSolutionDirCopy);
+
                 createContainerParams.HostConfig.Mounts.Add(new Docker.DotNet.Models.Mount() {
                     Type = "bind",
-                    Source = tempPathForSolutionDirCopy,
+                    Source = effectiveSolutionFolderToMount,
                     Target = task.SolutionDirectoryInContainer,
                     ReadOnly = false
                 });
@@ -156,6 +157,21 @@ namespace AHK.TaskRunner
             {
                 throw new Exception($"Container create failed with error: {ex.Message}", ex);
             }
+        }
+
+        private async Task<string> extractSolutionGetEffectiveDirectory(string sourceDirectoryOrFile, string targetDirectory)
+        {
+            if (System.IO.Directory.Exists(sourceDirectoryOrFile))
+            {
+                await DirectoryHelper.DirectoryCopy(sourceDirectoryOrFile, targetDirectory, true);
+                return targetDirectory;
+            }
+            else if (System.IO.File.Exists(sourceDirectoryOrFile))
+            {
+                return await ZipHelper.ExtractAndGetContentsDir(sourceDirectoryOrFile, targetDirectory);
+            }
+            else
+                throw new System.IO.FileNotFoundException("Cannot find solution to evaluate", sourceDirectoryOrFile);
         }
 
         private void setImageParameters(Docker.DotNet.Models.CreateContainerParameters createContainerParams, IReadOnlyDictionary<string, string> containerParams)
