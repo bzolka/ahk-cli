@@ -1,9 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-
-namespace AHK.Configuration
+﻿namespace AHK.Configuration
 {
     interface IConfigValidator
     {
-        bool Validate(ILogger logger);
+        void Validate();
     }
 }

@@ -22,36 +22,16 @@ namespace AHK
         private static Microsoft.Extensions.CommandLineUtils.CommandLineApplication createCliApp(AppConfig appConfig, ILoggerFactory loggerFactory)
         {
             var cliApp = new Microsoft.Extensions.CommandLineUtils.CommandLineApplication(throwOnUnexpectedArg: false);
-            cliApp.Command("run",
-                runCommandConfig => {
-                    runCommandConfig.Description = "Kiertekeles futtatasa hallgatoi megoldasokon";
-                    var konfigArg = runCommandConfig.Option("-k|--konfiguracio", "Futtatast leiro konfiguracios fajl", Microsoft.Extensions.CommandLineUtils.CommandOptionType.SingleValue);
-                    var megoldasArg = runCommandConfig.Option("-m|--megoldas", "Hallgatoi megoldasokat tartalmazo konyvtar", Microsoft.Extensions.CommandLineUtils.CommandOptionType.SingleValue);
-                    var eredmenyArg = runCommandConfig.Option("-e|--eredmeny", "Eredmenyek ebbe a konyvtarba keruljenek", Microsoft.Extensions.CommandLineUtils.CommandOptionType.SingleValue);
-
-                    runCommandConfig.OnExecute(async () => {
-                        if (!konfigArg.HasValue() || !megoldasArg.HasValue() || !eredmenyArg.HasValue())
-                        {
-                            runCommandConfig.ShowHelp();
-                            return -1;
-                        }
-
-                        return await RunCommand.Execute(konfigArg.Value(), megoldasArg.Value(), eredmenyArg.Value(), appConfig, loggerFactory.CreateLogger("Run"));
-                    });
-                },
-                throwOnUnexpectedArg: false);
-
-            cliApp.Command("clean",
-                cleanCommandConfig => {
-                    cleanCommandConfig.Description = "Felbemaradt futtatasok eltakaritasa";
-                    cleanCommandConfig.OnExecute(() => CleanCommand.Execute(loggerFactory.CreateLogger("Cleanup")));
-                },
-                throwOnUnexpectedArg: false);
-
-
             cliApp.HelpOption("-?|-h|--help");
             cliApp.FullName = "AUTomatikus Hazi Kiertekelo";
-            cliApp.OnExecute(() => { cliApp.ShowHelp(); return 0; });
+
+            var megoldasArg = cliApp.Option("-m|--megoldas", "Hallgatoi megoldasokat tartalmazo konyvtar. Alapertelmezesben az aktualis konyvtar.", Microsoft.Extensions.CommandLineUtils.CommandOptionType.SingleValue);
+            var konfigArg = cliApp.Option("-k|--konfiguracio", "Futtatast leiro konfiguracios fajl. Alapertelmeyesben a megoldasok konyvtaraban keresett json fajl.", Microsoft.Extensions.CommandLineUtils.CommandOptionType.SingleValue);
+            var eredmenyArg = cliApp.Option("-e|--eredmeny", "Futas eredmenyeinek helye. Alapertelmezesben az aktualis konyvtarban letrehozott uj konyvtar.", Microsoft.Extensions.CommandLineUtils.CommandOptionType.SingleValue);
+
+            cliApp.OnExecute(async () => {
+                return await Runner.Go(megoldasArg.Value(), konfigArg.Value(), eredmenyArg.Value(), appConfig, loggerFactory.CreateLogger("Run"));
+            });
 
             return cliApp;
         }

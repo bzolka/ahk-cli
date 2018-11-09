@@ -2,7 +2,7 @@
   "profiles": {
     "AHK.Cli": {
       "commandName": "Project",
-      "commandLineArgs": "run -k \"./futtato-konfiguracio\" -m \"./minta-hallgatoi-megoldasok\" -e \"./futas-eredmenye-{datum}\"",
+      "commandLineArgs": "-k \"./futtato-konfiguracio\" -m \"./minta-hallgatoi-megoldasok\" -e \"./futas-eredmenye-{datum}\"",
       "workingDirectory": "$(SolutionDir)..\\MintaHfEllenorzo"
     }
   }

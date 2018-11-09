@@ -5,15 +5,14 @@ using Microsoft.Extensions.Logging;
 
 namespace AHK
 {
-    internal static class RunCommand
+    internal static class Runner
     {
-        public static async Task<int> Execute(string executionConfigFile, string assignmentsDir, string resultsDir, AppConfig appConfig, ILogger logger)
+        public static async Task<int> Go(string assignmentsDir, string executionConfigFile, string resultsDir, AppConfig appConfig, ILogger logger)
         {
             try
             {
                 Console.WriteLine("Megoldasok beolvasasa...");
-                var jobsLoader = new JobsLoader(logger);
-                var runConfig = jobsLoader.ReadFrom(executionConfigFile, assignmentsDir, resultsDir);
+                var runConfig = JobsLoader.Load(assignmentsDir, executionConfigFile, resultsDir, logger);
                 Console.WriteLine("Megoldasok beolvasasa kesz.");
 
                 Console.WriteLine("Kiertekeles futtatasa...");
