@@ -12,5 +12,5 @@ Elemei
 ## Futtatás
 
 ```
-dotnet AHK.dll run -k "./futtato-konfiguracio" -m "./minta-hallgatoi-megoldasok" -e "./futas-eredmenye-{datum}"
+dotnet AHK.dll -k "./futtato-konfiguracio" -m "./minta-hallgatoi-megoldasok" -e "./futas-eredmenye-{datum}"
 ```
