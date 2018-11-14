@@ -39,23 +39,37 @@ namespace AHK.Grader
                         if (messages.Length == 0)
                             failedNames.Add(testName);
                         else
-                            failedNames.Add($"{testName}: {string.Join(' ', messages)}");
+                            failedNames.Add($"{testName}: {string.Join(' ', messages.Select(formatTestMessage).ToArray())}");
                     }
                 }
 
                 return new TrxResult(total, passed, failedNames);
             }
-
-            //var summary = xdoc.Descendants().FirstOrDefault(x => x.Name.LocalName == "ResultSummary");
-            //if (summary != null)
-            //{
-            //    var counters = summary.Descendants().FirstOrDefault(x => x.Name.LocalName == "Counters");
-            //    if (counters != null)
-            //    {
-            //        var total = int.Parse(counters.Attribute("total").Value);
-            //        var passed = int.Parse(counters.Attribute("passed").Value);
-            //    }
-            //}
         }
+
+        /// <summary>
+        /// Cleans up the test message, removed texts relatedd to Exceptions and Asserts.
+        /// Keeps the text that is relevant to the student.
+        /// </summary>
+        private static string formatTestMessage(string testMessage)
+        {
+            if (testMessage == null)
+                return string.Empty;
+
+            // Remove texts like "Assembly initialization failed with System.Exception."
+            testMessage = removeSubstringMatchingRegex(testMessage, @"\s*(Assembly|Class|Test) initialization .* exception\.\s*");
+
+            // Remove texts like "System.Exception: System.ArgumentNullException:"
+            testMessage = removeSubstringMatchingRegex(testMessage, @"\s*[\w\.]+Exception:\s*");
+
+            // Remove messages like "Assert.IsTrue failed."
+            // Pattern of these is from https://github.com/Microsoft/testfx/blob/3197e7bb9f7fd4219c7855be575fb5def205aff7/src/TestFramework/MSTest.Core/Assertions/Assert.cs
+            testMessage = removeSubstringMatchingRegex(testMessage, @"\s*Assert\.\w+ failed.\s*");
+
+            return testMessage;
+        }
+
+        private static string removeSubstringMatchingRegex(string s, string regexPattern)
+            => System.Text.RegularExpressions.Regex.Replace(s, regexPattern, string.Empty, System.Text.RegularExpressions.RegexOptions.IgnoreCase, TimeSpan.FromSeconds(5));
     }
 }
