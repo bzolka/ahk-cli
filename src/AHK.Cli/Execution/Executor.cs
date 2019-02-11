@@ -58,19 +58,26 @@ namespace AHK.Execution
                         }
                         else
                         {
-                            using (var grader = new Grader.TrxGrader(createTrxTask(task), logger))
+                            if (!string.IsNullOrEmpty(task.TrxFileName))
                             {
-                                var graderResult = await grader.GradeResult();
-                                if (!graderResult.GradingSuccessful)
+                                using (var grader = new Grader.TrxGrader(createTrxTask(task), logger))
                                 {
-                                    evaluationStatScope.OnExecutionFailed();
-                                    logger.LogError(runnerResult.Exception, "Grader failed");
+                                    var graderResult = await grader.GradeResult();
+                                    if (!graderResult.GradingSuccessful)
+                                    {
+                                        evaluationStatScope.OnExecutionFailed();
+                                        logger.LogError(runnerResult.Exception, "Grader failed");
+                                    }
+                                    else
+                                    {
+                                        resultsWriter.Write(task.StudentId, graderResult);
+                                        evaluationStatScope.OnExecutionCompleted();
+                                    }
                                 }
-                                else
-                                {
-                                    resultsWriter.Write(task.StudentId, graderResult);
-                                    evaluationStatScope.OnExecutionCompleted();
-                                }
+                            }
+                            else
+                            {
+                                evaluationStatScope.OnExecutionCompleted();
                             }
                         }
                     }

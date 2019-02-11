@@ -10,11 +10,8 @@
             if (Docker == null)
                 throw new System.Exception("Docker konfiguracio hianyzik");
 
-            if (Trx == null)
-                throw new System.Exception("Trx konfiguracio hianyzik");
-
             Docker.Validate();
-            Trx.Validate();
+            Trx?.Validate();
         }
     }
 }

@@ -52,7 +52,7 @@ namespace AHK
             resultsDir = Path.Combine(resultsDir, studentId);
             return new ExecutionTask(studentId, path, resultsDir,
                                      effectiveConfig.Docker.ImageName, effectiveConfig.Docker.SolutionInContainer, effectiveConfig.Docker.ResultInContainer, effectiveConfig.Docker.EvaluationTimeout, effectiveConfig.Docker.ContainerParams,
-                                     effectiveConfig.Trx.TrxFileName);
+                                     effectiveConfig.Trx?.TrxFileName);
         }
     }
 }
