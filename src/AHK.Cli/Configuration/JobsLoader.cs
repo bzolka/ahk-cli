@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using AHK.Configuration;
 using AHK.Execution;
+using AHK.Execution.Evaluation;
 using Microsoft.Extensions.Logging;
 
 namespace AHK
@@ -52,7 +53,17 @@ namespace AHK
             resultsDir = Path.Combine(resultsDir, studentId);
             return new ExecutionTask(studentId, path, resultsDir,
                                      effectiveConfig.Docker.ImageName, effectiveConfig.Docker.SolutionInContainer, effectiveConfig.Docker.ResultInContainer, effectiveConfig.Docker.EvaluationTimeout, effectiveConfig.Docker.ContainerParams,
-                                     effectiveConfig.Trx?.TrxFileName);
+                                     createEvaluationTask(effectiveConfig));
+        }
+
+        private static EvaluationTask createEvaluationTask(AHKJobConfig effectiveConfig)
+        {
+            if (effectiveConfig.Trx != null)
+                return new TrxEvaluationTask(effectiveConfig.Trx.TrxFileName);
+            else if (effectiveConfig.ConsoleMessageGrader != null)
+                return new ConsoleMessagesEvaluationTask(effectiveConfig.ConsoleMessageGrader.ValidationCode);
+            else
+                return null;
         }
     }
 }

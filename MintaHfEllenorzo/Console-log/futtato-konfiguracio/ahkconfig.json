@@ -1,0 +1,14 @@
+{
+  "docker": {
+    "imageName": "aut/mintahf2",
+    "solutionInContainer": "/megoldas",
+    "resultInContainer": "/eredmeny",
+    "evaluationTimeout": "00:00:30",
+    "containerParams": {
+      "memory": "268435456"
+    }
+  },
+  "consoleMessageGrader": {
+    "validationCode": "QWE789"
+  }
+}

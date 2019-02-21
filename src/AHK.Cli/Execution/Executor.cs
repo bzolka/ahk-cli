@@ -51,6 +51,25 @@ namespace AHK.Execution
                         var runnerResult = await taskRunner.Run();
                         logger.LogTrace("Finished runner");
 
+                        if (!string.IsNullOrEmpty(runnerResult.ConsoleOutput))
+                        {
+                            if (!string.IsNullOrEmpty(task.ResultArtifactPath))
+                            {
+                                var outputFilePath = System.IO.Path.Combine(task.ResultArtifactPath, "_console-log.txt");
+                                System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(outputFilePath));
+                                System.IO.File.WriteAllText(
+                                        outputFilePath,
+                                        sanitizeContainerConsoleOutput(runnerResult.ConsoleOutput),
+                                        System.Text.Encoding.UTF8);
+
+                                logger.LogTrace("Container stdout saved to artifact directory");
+                            }
+                            else
+                            {
+                                logger.LogWarning("Container stdout lost; no artifact directory");
+                            }
+                        }
+
                         if (runnerResult.HadError())
                         {
                             evaluationStatScope.OnExecutionFailed();
@@ -58,21 +77,18 @@ namespace AHK.Execution
                         }
                         else
                         {
-                            if (!string.IsNullOrEmpty(task.TrxFileName))
+                            if (task.EvaluationTask != null)
                             {
-                                using (var grader = new Grader.TrxGrader(createTrxTask(task), logger))
+                                var graderResult = await task.EvaluationTask.ExecuteGrader(task, runnerResult, logger);
+                                if (!graderResult.GradingSuccessful)
                                 {
-                                    var graderResult = await grader.GradeResult();
-                                    if (!graderResult.GradingSuccessful)
-                                    {
-                                        evaluationStatScope.OnExecutionFailed();
-                                        logger.LogError(runnerResult.Exception, "Grader failed");
-                                    }
-                                    else
-                                    {
-                                        resultsWriter.Write(task.StudentId, graderResult);
-                                        evaluationStatScope.OnExecutionCompleted();
-                                    }
+                                    evaluationStatScope.OnExecutionFailed();
+                                    logger.LogError(runnerResult.Exception, "Grader failed");
+                                }
+                                else
+                                {
+                                    resultsWriter.Write(task.StudentId, graderResult);
+                                    evaluationStatScope.OnExecutionCompleted();
                                 }
                             }
                             else
@@ -102,7 +118,27 @@ namespace AHK.Execution
                                                TimeSpanHelper.Smaller(task.DockerTimeout, maxTimeout),
                                                task.DockerImageParams);
 
-        private Grader.TrxGraderTask createTrxTask(ExecutionTask task)
-            => new Grader.TrxGraderTask(task.TaskId, task.StudentId, System.IO.Path.Combine(task.ResultArtifactPath, task.TrxFileName));
+        private string sanitizeContainerConsoleOutput(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return string.Empty;
+
+            var builder = new System.Text.StringBuilder(text.Length);
+
+            using (var sr = new System.IO.StringReader(text))
+            {
+                string line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    // skip lines that are ment for the ConsoleMessagesGrader
+                    if (line.StartsWith(@"###ahk", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    builder.AppendLine(line);
+                }
+            }
+
+            return builder.ToString();
+        }
     }
 }

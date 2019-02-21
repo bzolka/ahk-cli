@@ -1,16 +1,4 @@
-# Leírás
+# Minta kiértékelő egy házi feladathoz
 
-Minta kiértékelő egy házi feladathoz.
-
-Elemei
-
-* [Docker image](./ellenorzo-kontener), amely a kiértelésért felelős
-* [Kiértékelő alkalmazás](./ellenorzo-kontener/src), amely a megoldás ellenőrzését végzi unit tesztek formájában. Az előbbi image tartamazza.
-* [Futtató konfiguráció](./futtato-konfiguracio), amely a parancssori alkalmazást vezérli
-* [Minta hallgatói megoldások](./minta-hallgatoi-megoldasok) a teszteléshez
-
-## Futtatás
-
-```
-dotnet AHK.dll -k "./futtato-konfiguracio" -m "./minta-hallgatoi-megoldasok" -e "./futas-eredmenye-{datum}"
-```
+- [.NET Core unit teszt alapon](./Netcore-Trx): az ellenőrzést .NET Core unit tesztek végzik, és a pontozást a unit teszt eredményeként előállt trx fájl segíti
+- [Konzolra írt üzenetek alapon](./Console-log): az ellenőrzést tetszőleges alkalmazás végzi, és általa a konzolra kiírt üzenetek alapján történik a pontozás

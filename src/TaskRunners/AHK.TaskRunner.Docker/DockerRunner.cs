@@ -34,9 +34,10 @@ namespace AHK.TaskRunner
                 using (var tempDirectoryForSolutionCopy = tempPathProvider.GetTempDirectory())
                 {
                     var containerId = await createContainer(timeout.Token, tempDirectoryForSolutionCopy.Path);
+                    string containerConsoleLog = string.Empty;
                     try
                     {
-                        await runContainerWaitForExit(containerId, timeout.Token);
+                        containerConsoleLog = await runContainerWaitForExit(containerId, timeout.Token);
                     }
                     finally
                     {
@@ -44,18 +45,18 @@ namespace AHK.TaskRunner
                     }
 
                     logger.LogInformation("Docker runner finished");
-                    return RunnerResult.Success();
+                    return RunnerResult.Success(containerConsoleLog);
                 }
             }
             catch (OperationCanceledException)
             {
                 logger.LogWarning("Docker runner timeout");
-                return RunnerResult.Timeout();
+                return RunnerResult.Timeout(string.Empty);
             }
             catch (Exception ex)
             {
                 logger.LogError(ex, "Docker runner failed");
-                return RunnerResult.Failed(ex);
+                return RunnerResult.Failed(string.Empty, ex);
             }
         }
 
@@ -71,7 +72,7 @@ namespace AHK.TaskRunner
             }
         }
 
-        private async Task runContainerWaitForExit(string containerId, CancellationToken cancellationToken)
+        private async Task<string> runContainerWaitForExit(string containerId, CancellationToken cancellationToken)
         {
             if (!await docker.Containers.StartContainerAsync(containerId, new Docker.DotNet.Models.ContainerStartParameters(), cancellationToken))
                 throw new Exception("Failed to start container");
@@ -87,21 +88,7 @@ namespace AHK.TaskRunner
 
             var (logStdout, logStderr) = await readContainerLogsTask;
 
-            if (task.HasResultDirectory)
-            {
-                var outputFilePath = System.IO.Path.Combine(task.ResultPathInMachine, "output.txt");
-                System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(outputFilePath));
-                System.IO.File.WriteAllText(
-                        outputFilePath,
-                        logStdout + Environment.NewLine + logStderr,
-                        System.Text.Encoding.UTF8);
-
-                logger.LogTrace("Container stdout saved to artifact directory");
-            }
-            else
-            {
-                logger.LogWarning("Container stdout lost; no artifact directory");
-            }
+            return logStdout + Environment.NewLine + logStderr;
         }
 
         private async Task<string> createContainer(CancellationToken cancellationToken, string tempPathForSolutionDirCopy)

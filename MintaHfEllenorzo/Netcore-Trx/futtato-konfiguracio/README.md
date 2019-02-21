@@ -39,5 +39,7 @@ Opcionális paraméterek a konténer létrehozásához. Tipikusan pl. használha
 Az eredmény könyvtárban elvárt TRX fájl a pontozáshoz.
 
 ```json
-    "trxFileName": "testresult.trx"
+    "trx": {
+        "trxFileName": "testresult.trx"
+    }
 ```

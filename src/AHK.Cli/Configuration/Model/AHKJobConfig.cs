@@ -4,6 +4,7 @@
     {
         public DockerConfig Docker { get; set; }
         public TrxConfig Trx { get; set; }
+        public ConsoleMessageGraderConfig ConsoleMessageGrader { get; set; }
 
         public void Validate()
         {
@@ -12,6 +13,7 @@
 
             Docker.Validate();
             Trx?.Validate();
+            ConsoleMessageGrader?.Validate();
         }
     }
 }

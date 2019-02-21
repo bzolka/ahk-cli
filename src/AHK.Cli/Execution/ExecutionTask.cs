@@ -17,11 +17,11 @@ namespace AHK.Execution
         public readonly TimeSpan DockerTimeout;
         public readonly IReadOnlyDictionary<string, string> DockerImageParams;
 
-        public readonly string TrxFileName;
+        public readonly Evaluation.EvaluationTask EvaluationTask;
 
         public ExecutionTask(string studentId, string solutionPath, string resultArtifactPath,
             string dockerImageName, string dockerSolutionDirectoryInContainer, string dockerResultPathInContainer, TimeSpan dockerTimeout, IReadOnlyDictionary<string, string> dockerImageParams,
-            string trxFileName)
+            Evaluation.EvaluationTask evaluationTask)
         {
             this.StudentId = studentId;
             this.SolutionPath = solutionPath;
@@ -31,7 +31,7 @@ namespace AHK.Execution
             this.DockerResultPathInContainer = dockerResultPathInContainer;
             this.DockerTimeout = dockerTimeout;
             this.DockerImageParams = dockerImageParams;
-            this.TrxFileName = trxFileName;
+            this.EvaluationTask = evaluationTask;
         }
     }
 }
