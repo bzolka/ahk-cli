@@ -36,7 +36,7 @@ Opcionális paraméterek a konténer létrehozásához. Tipikusan pl. használha
         }
 ```
 
-Konzolra írt üzenetektől várja a tesztek eredményét. A konzolra a konténerben futó alkalmazás/szript ír. Az üzenetek validálásához az üzenetben szerepelnie kell az itt megadott kódnak (hogy a hallgató nem írhasson olyan kódot, ami fals eredményt naplóz ki). Ezt a kódot nem ismerheti meg a hallgató, de a konténerben futó alkalmazásnak ismernie kell.
+Konzolra írt üzenetektől várja a tesztek eredményét. A konzolra a konténerben futó alkalmazás/script ír. Az üzenetek validálásához az üzenetben szerepelnie kell az itt megadott kódnak (hogy a hallgató ne írhasson olyan kódot, ami fals eredményt naplóz ki). Ezt a kódot nem ismerheti meg a hallgató, de a konténerben futó alkalmazásnak ismernie kell.
 
 ```json
     "consoleMessageGrader": {
