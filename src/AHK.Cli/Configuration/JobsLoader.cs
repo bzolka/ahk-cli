@@ -13,19 +13,17 @@ namespace AHK
     {
         public static RunConfig Load(string assignmentsDirPathFromUser, string configFilePathFromUser, string resultsDirPathFromUser, ILogger logger)
         {
-            (var assignmentsDir, var resultsDir, var defaultRunConfigFile) = InputPathsResolver.ResolveEffectivePaths(assignmentsDirPathFromUser, resultsDirPathFromUser, configFilePathFromUser);
+            (var assignmentsDir, var resultsDir, var jobConfigFile) = InputPathsResolver.ResolveEffectivePaths(assignmentsDirPathFromUser, resultsDirPathFromUser, configFilePathFromUser);
 
             if (Directory.GetDirectories(assignmentsDir).Length + Directory.GetFiles(assignmentsDir, "*.zip").Length == 0)
                 throw new Exception($"Megoldasok konyvtaraban '{assignmentsDir}' nincsenek alkonyvtarak vagy zipek a hallgatoi megoldasokkal");
 
-            AHKJobConfig defaultRunConfig = null;
-            if (!string.IsNullOrEmpty(defaultRunConfigFile))
-                defaultRunConfig = RunConfigReader.GetAndValidateConfig(defaultRunConfigFile);
+            var jobConfig = RunConfigReader.GetAndValidateConfig(jobConfigFile);
 
             var evaluationTasks = new List<ExecutionTask>();
             foreach (var assignmentSolution in enumeratePossibleAssignmentSolutions(assignmentsDir))
             {
-                var t = createTaskFrom(assignmentSolution, resultsDir, defaultRunConfig, logger);
+                var t = createTaskFrom(assignmentSolution, resultsDir, jobConfig, logger);
                 if (t == null)
                     logger.LogWarning("Megoldas konyvar hibas: {Dir}", assignmentSolution);
                 else
@@ -39,14 +37,13 @@ namespace AHK
         private static IEnumerable<string> enumeratePossibleAssignmentSolutions(string assignmentsDir) =>
             Directory.EnumerateDirectories(assignmentsDir).Union(Directory.EnumerateFiles(assignmentsDir, "*.zip"));
 
-        private static ExecutionTask createTaskFrom(string path, string resultsDir, AHKJobConfig defaultConfig, ILogger logger)
+        private static ExecutionTask createTaskFrom(string path, string resultsDir, AHKJobConfig jobConfig, ILogger logger)
         {
             // there is no name available, use the directory name for now
             var studentName = Path.GetFileNameWithoutExtension(path);
             var studentNeptun = StudentIdParser.GetStudentNeptunFor(path);
-            var effectiveConfig = RunConfigReader.Get(path) ?? defaultConfig;
 
-            if (effectiveConfig == null)
+            if (jobConfig == null)
             {
                 logger.LogWarning("Nincs megadva futtato konfiguracio a kovetkezo mappahoz: {Dir}", path);
                 return null;
@@ -54,8 +51,8 @@ namespace AHK
 
             resultsDir = Path.Combine(resultsDir, studentNeptun);
             return new ExecutionTask(studentName, studentNeptun, path, resultsDir,
-                                     effectiveConfig.Docker.ImageName, effectiveConfig.Docker.SolutionInContainer, effectiveConfig.Docker.ResultInContainer, effectiveConfig.Docker.EvaluationTimeout, effectiveConfig.Docker.ContainerParams,
-                                     createEvaluationTask(effectiveConfig));
+                                     jobConfig.Docker.ImageName, jobConfig.Docker.SolutionInContainer, jobConfig.Docker.ResultInContainer, jobConfig.Docker.EvaluationTimeout, jobConfig.Docker.ContainerParams,
+                                     createEvaluationTask(jobConfig));
         }
 
         private static EvaluationTask createEvaluationTask(AHKJobConfig effectiveConfig)

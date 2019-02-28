@@ -9,10 +9,9 @@ namespace AHK.Configuration
         {
             var assignmentsDir = getAssignmentsDir(assignmentsDirPathFromUser);
             var resultsDir = getResultsDir(assignmentsDir, resultsDirPathFromUser);
+            var jobConfigFile = getConfigFilePath(configFilePathFromUser);
 
-            var defaultRunConfigFile = getConfigFilePath(configFilePathFromUser);
-
-            return (assignmentsDir, resultsDir, defaultRunConfigFile);
+            return (assignmentsDir, resultsDir, jobConfigFile);
         }
 
         private static string getAssignmentsDir(string dirFromUser)
@@ -55,7 +54,7 @@ namespace AHK.Configuration
         private static string getConfigFilePath(string pathFromUser)
         {
             if (string.IsNullOrEmpty(pathFromUser))
-                return null;
+                throw new Exception($"Nincs megadva a futtato konfiguracios fajl");
 
             if (File.Exists(pathFromUser))
             {
@@ -65,9 +64,9 @@ namespace AHK.Configuration
             {
                 var possibleConfigFiles = Directory.GetFiles(pathFromUser, "*.json", SearchOption.TopDirectoryOnly);
                 if (possibleConfigFiles.Length == 0)
-                    throw new Exception($"Nem talalhato futtato konfiguracios fajlt itt: '{pathFromUser}'");
+                    throw new Exception($"Nem talalhato futtato konfiguracios fajl itt: '{pathFromUser}'");
                 if (possibleConfigFiles.Length > 1)
-                    throw new Exception($"Tobb, mint egy lehetseges json futtato konfiguracios fajlt itt: '{pathFromUser}'");
+                    throw new Exception($"Tobb, mint egy lehetseges json futtato konfiguracios fajl itt: '{pathFromUser}'");
 
                 return Path.GetFullPath(possibleConfigFiles[0]);
             }
