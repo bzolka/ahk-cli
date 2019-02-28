@@ -19,7 +19,7 @@ namespace AHK.Grader
         {
             if (string.IsNullOrEmpty(task.ConsoleLog))
             {
-                logger.LogInformation($"Empty console log for task {task.TaskId} student {task.StudentId}");
+                logger.LogInformation($"Empty console log for task {task.TaskId} student {task.StudentNeptun}");
                 return GraderResult.NoResult;
             }
             else

@@ -32,10 +32,10 @@ namespace AHK.ExcelResultsWriter
             headerRow.CreateCell(3, CellType.String).SetCellValue("Eredmény");
         }
 
-        public void Write(string studentId, Grader.GraderResult graderResult)
+        public void Write(string studentName, string studentId, Grader.GraderResult graderResult)
         {
             var row = workSheet.CreateRow(nextRowIndex++);
-            row.CreateCell(0, CellType.String).SetCellValue("");
+            row.CreateCell(0, CellType.String).SetCellValue(studentName);
             row.CreateCell(1, CellType.String).SetCellValue(studentId);
             row.CreateCell(2, CellType.String).SetCellValue(formatIssuesForCell(graderResult.FailedTestNames));
             row.CreateCell(3, CellType.String).SetCellValue(graderResult.Grade);

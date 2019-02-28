@@ -6,8 +6,8 @@ namespace AHK.Grader
     {
         public readonly string TrxFilePath;
 
-        public TrxGraderTask(Guid taskId, string studentId, string trxFilePath)
-            : base(taskId, studentId)
+        public TrxGraderTask(Guid taskId, string studentName, string studentNeptun, string trxFilePath)
+            : base(taskId, studentName, studentNeptun)
         {
             this.TrxFilePath = trxFilePath ?? throw new ArgumentNullException(nameof(trxFilePath));
         }

@@ -19,6 +19,6 @@ namespace AHK.Execution.Evaluation
         }
 
         private Grader.ConsoleMessagesGraderTask createTask(ExecutionTask task, string consoleLog)
-            => new Grader.ConsoleMessagesGraderTask(task.TaskId, task.StudentId, consoleLog, this.ValidationCode);
+            => new Grader.ConsoleMessagesGraderTask(task.TaskId, task.StudentName, task.StudentNeptun, consoleLog, this.ValidationCode);
     }
 }

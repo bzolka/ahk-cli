@@ -7,8 +7,8 @@ namespace AHK.Grader
         public readonly string ConsoleLog;
         public readonly string ValidationCode;
 
-        public ConsoleMessagesGraderTask(Guid taskId, string studentId, string consoleLog, string validationCode)
-            : base(taskId, studentId)
+        public ConsoleMessagesGraderTask(Guid taskId, string studentName, string studentNeptun, string consoleLog, string validationCode)
+            : base(taskId, studentName, studentNeptun)
         {
             this.ConsoleLog = consoleLog ?? throw new ArgumentNullException(nameof(consoleLog));
             this.ValidationCode = validationCode ?? throw new ArgumentNullException(nameof(validationCode));

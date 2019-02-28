@@ -19,12 +19,12 @@ namespace AHK.Grader
         {
             if (!System.IO.File.Exists(task.TrxFilePath))
             {
-                logger.LogInformation($"No Trx file for task {task.TaskId} student {task.StudentId} at '{task.TrxFilePath}'");
+                logger.LogInformation($"No Trx file for task {task.TaskId} student {task.StudentNeptun} at '{task.TrxFilePath}'");
                 return GraderResult.NoResult;
             }
             else
             {
-                logger.LogTrace($"Found Trx file for task {task.TaskId} student {task.StudentId} at '{task.TrxFilePath}'");
+                logger.LogTrace($"Found Trx file for task {task.TaskId} student {task.StudentNeptun} at '{task.TrxFilePath}'");
                 var trxResult = await TrxReader.Read(task.TrxFilePath);
                 return new GraderResult(trxResult.Passed, trxResult.FailedTestNames);
             }

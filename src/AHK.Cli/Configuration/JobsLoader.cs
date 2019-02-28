@@ -41,7 +41,9 @@ namespace AHK
 
         private static ExecutionTask createTaskFrom(string path, string resultsDir, AHKJobConfig defaultConfig, ILogger logger)
         {
-            var studentId = StudentIdParser.GetStudentIdFor(path);
+            // there is no name available, use the directory name for now
+            var studentName = Path.GetFileNameWithoutExtension(path);
+            var studentNeptun = StudentIdParser.GetStudentNeptunFor(path);
             var effectiveConfig = RunConfigReader.Get(path) ?? defaultConfig;
 
             if (effectiveConfig == null)
@@ -50,8 +52,8 @@ namespace AHK
                 return null;
             }
 
-            resultsDir = Path.Combine(resultsDir, studentId);
-            return new ExecutionTask(studentId, path, resultsDir,
+            resultsDir = Path.Combine(resultsDir, studentNeptun);
+            return new ExecutionTask(studentName, studentNeptun, path, resultsDir,
                                      effectiveConfig.Docker.ImageName, effectiveConfig.Docker.SolutionInContainer, effectiveConfig.Docker.ResultInContainer, effectiveConfig.Docker.EvaluationTimeout, effectiveConfig.Docker.ContainerParams,
                                      createEvaluationTask(effectiveConfig));
         }

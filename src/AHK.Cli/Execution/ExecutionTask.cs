@@ -7,7 +7,8 @@ namespace AHK.Execution
     {
         public readonly Guid TaskId = Guid.NewGuid();
 
-        public readonly string StudentId;
+        public readonly string StudentName;
+        public readonly string StudentNeptun;
         public readonly string SolutionPath;
         public readonly string ResultArtifactPath;
 
@@ -19,11 +20,12 @@ namespace AHK.Execution
 
         public readonly Evaluation.EvaluationTask EvaluationTask;
 
-        public ExecutionTask(string studentId, string solutionPath, string resultArtifactPath,
+        public ExecutionTask(string studentName, string studentNeptun, string solutionPath, string resultArtifactPath,
             string dockerImageName, string dockerSolutionDirectoryInContainer, string dockerResultPathInContainer, TimeSpan dockerTimeout, IReadOnlyDictionary<string, string> dockerImageParams,
             Evaluation.EvaluationTask evaluationTask)
         {
-            this.StudentId = studentId;
+            this.StudentName = studentName;
+            this.StudentNeptun = studentNeptun;
             this.SolutionPath = solutionPath;
             this.ResultArtifactPath = resultArtifactPath;
             this.DockerImageName = dockerImageName;

@@ -37,7 +37,7 @@ namespace AHK.Execution
 
         private async Task executeTask(ExecutionTask task, ExecutionStatisticsRecorder evaluationStatisticsRecorder, ExcelResultsWriter.XlsxResultsWriter resultsWriter)
         {
-            using (logger.BeginScope("Evaluating task {TaskId}; StudentId {StudentId}", task.TaskId, task.StudentId))
+            using (logger.BeginScope("Evaluating task {TaskId}; Student {StudentName} {StudentNeptun}", task.TaskId, task.StudentName, task.StudentNeptun))
             using (var evaluationStatScope = evaluationStatisticsRecorder.OnExecutionStarted())
             {
                 logger.LogInformation("Input path {solutionPath}; artifacts {artifactPath}", task.SolutionPath, task.ResultArtifactPath);
@@ -87,7 +87,7 @@ namespace AHK.Execution
                                 }
                                 else
                                 {
-                                    resultsWriter.Write(task.StudentId, graderResult);
+                                    resultsWriter.Write(task.StudentName, task.StudentNeptun, graderResult);
                                     evaluationStatScope.OnExecutionCompleted();
                                 }
                             }

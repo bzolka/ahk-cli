@@ -19,6 +19,6 @@ namespace AHK.Execution.Evaluation
         }
 
         private Grader.TrxGraderTask createTrxTask(ExecutionTask task)
-            => new Grader.TrxGraderTask(task.TaskId, task.StudentId, System.IO.Path.Combine(task.ResultArtifactPath, this.TrxFileName));
+            => new Grader.TrxGraderTask(task.TaskId, task.StudentName, task.StudentNeptun, System.IO.Path.Combine(task.ResultArtifactPath, this.TrxFileName));
     }
 }

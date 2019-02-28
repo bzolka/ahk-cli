@@ -8,7 +8,7 @@ namespace AHK.Configuration
     {
         public const int SuspiciousNeptunTxtFileSizeThreshold = 100;
 
-        public static string GetStudentIdFor(string path)
+        public static string GetStudentNeptunFor(string path)
         {
             if (string.IsNullOrEmpty(path) || string.IsNullOrWhiteSpace(path))
                 throw new ArgumentNullException(nameof(path));
