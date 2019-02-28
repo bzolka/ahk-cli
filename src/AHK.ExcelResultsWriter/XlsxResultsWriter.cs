@@ -48,7 +48,7 @@ namespace AHK.ExcelResultsWriter
             if (failedTestNames == null || failedTestNames.Count == 0)
                 return string.Empty;
             else
-                return "Az alábbi tesztek nem sikerültek:" + Environment.NewLine + string.Join(Environment.NewLine, failedTestNames);
+                return "Az alábbi tesztek nem sikerültek:" + Environment.NewLine + string.Join(Environment.NewLine, System.Web.HttpUtility.HtmlEncode(failedTestNames));
         }
 
         private void saveFile()
