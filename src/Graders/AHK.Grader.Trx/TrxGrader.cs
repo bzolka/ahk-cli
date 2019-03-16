@@ -25,8 +25,14 @@ namespace AHK.Grader
             else
             {
                 logger.LogTrace($"Found Trx file for task {task.TaskId} student {task.StudentNeptun} at '{task.TrxFilePath}'");
-                var trxResult = await TrxReader.Read(task.TrxFilePath);
-                return new GraderResult(trxResult.Passed, trxResult.FailedTestNames);
+
+                var trxReader = new Trx.TrxReader(logger);
+                var result = await trxReader.Parse(task.TrxFilePath);
+
+                if (!result.HasResult)
+                    logger.LogInformation($"No tests parsed from Trx for task {task.TaskId} student {task.StudentNeptun} at '{task.TrxFilePath}'");
+
+                return result;
             }
         }
 

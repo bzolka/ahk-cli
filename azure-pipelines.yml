@@ -4,11 +4,17 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
 pool:
-  vmImage: 'Ubuntu 16.04'
+  vmImage: "Ubuntu 16.04"
 
 variables:
-  buildConfiguration: 'Release'
+  buildConfiguration: "Release"
 
 steps:
-- script: dotnet build --configuration $(buildConfiguration) src/AHK.sln
-  displayName: 'dotnet build $(buildConfiguration)'
+  - script: dotnet build --configuration $(buildConfiguration) src/AHK.sln
+    displayName: "dotnet build $(buildConfiguration)"
+
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: test
+      projects: "src/Tests/*Tests/*.csproj"
+      arguments: "--configuration $(buildConfiguration)"

@@ -24,9 +24,13 @@ namespace AHK.Grader
             }
             else
             {
-                var reader = new ConsoleMessagesReader(task.ValidationCode, logger);
-                var result = await reader.Read(task.ConsoleLog);
-                return new GraderResult(result.Passed, result.FailedTestNames);
+                var reader = new ConsoleMessages.ConsoleMessagesReader(task.ValidationCode, logger);
+                var result = await reader.Grade(task.ConsoleLog);
+
+                if (!result.HasResult)
+                    logger.LogInformation($"No result parsed from console log for task {task.TaskId} student {task.StudentNeptun}");
+
+                return result;
             }
         }
 

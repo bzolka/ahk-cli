@@ -1,23 +1,25 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
-namespace AHK.Grader
+namespace AHK.Grader.ConsoleMessages
 {
     public class ConsoleMessagesReader
     {
-        private const string LinePrefix = @"###ahk#";
-        private const string TestPassedMessage = @"passed";
-        private const string TestFailedMessage = @"failed";
+        private const string MessagePrefix = @"###ahk#";
 
         private readonly string expectedValidationCode;
         private readonly ILogger logger;
 
-        private int totalTests = 0;
-        private int passedTests = 0;
-        private List<string> failedTestNames = new List<string>();
+        private readonly IReadOnlyDictionary<string, Type> parsers = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase)
+        {
+            { Parsers.TestResultParser.Keyword, typeof(Parsers.TestResultParser) }
+        };
+
+        private readonly GraderResultBuilder resultBuilder = new GraderResultBuilder();
 
         public ConsoleMessagesReader(string expectedValidationCode, ILogger logger)
         {
@@ -25,77 +27,67 @@ namespace AHK.Grader
             this.logger = logger;
         }
 
-        public async Task<ConsoleMessagesTestResult> Read(string consoleLog)
+        public async Task<GraderResult> Grade(string consoleLog)
         {
-            using (var f = new StringReader(consoleLog))
+            using (var reader = new StringReader(consoleLog))
             {
-                string line;
-                while ((line = await f.ReadLineAsync()) != null)
+                while (true)
                 {
-                    if (line.StartsWith(LinePrefix, System.StringComparison.OrdinalIgnoreCase))
+                    var line = await reader.ReadLineAsync();
+                    if (line == null)
+                        break;
+
+                    if (line.StartsWith(MessagePrefix, StringComparison.OrdinalIgnoreCase))
                     {
-                        var values = line.Substring(LinePrefix.Length).Split('#');
-
-                        if (values.Length < 2)
+                        var entry = line.TrimEnd().TrimEnd('\\'); // first trim trailing whitespaces, then trim \ charaters
+                        while (line.TrimEnd().EndsWith('\\'))
                         {
-                            logger.LogWarning("Console message grader: syntax error in line.");
-                            continue;
-                        }
+                            line = await reader.ReadLineAsync();
 
-                        var validationCode = values[0];
-                        if (validationCode != expectedValidationCode)
-                        {
-                            logger.LogWarning("Console message grader: invalid validation code.");
-                            continue;
-                        }
-
-                        var operation = values[1];
-                        switch (operation)
-                        {
-                            case "testresult":
-                                readTestResult(values.Skip(2));
-                                break;
-                            default:
-                                logger.LogWarning($"Console message grader: unrecognized operation {operation}");
+                            if (line != null)
+                                entry += Environment.NewLine + line.TrimEnd().TrimEnd('\\');
+                            else
                                 break;
                         }
+
+                        parseMessage(entry);
                     }
                 }
             }
 
-            return new ConsoleMessagesTestResult(totalTests, passedTests, failedTestNames);
+            return resultBuilder.ToResult();
         }
 
-        private void readTestResult(IEnumerable<string> messageParts)
+        private void parseMessage(string message)
         {
-            var messagePartsArray = messageParts.ToArray();
-            if (messagePartsArray.Length < 2)
+            var values = message.Substring(MessagePrefix.Length).Split('#');
+
+            if (values.Length < 2)
             {
-                logger.LogWarning($"Console messages reader: testresult operation with too few parameters");
+                logger.LogWarning("Console message grader: syntax error in line {Line}.", message);
                 return;
             }
 
-            string testName = messagePartsArray[0] ?? "N/A";
-            string resultString = messagePartsArray[1] ?? string.Empty;
-            string comment = messagePartsArray.Length > 2 ? (messagePartsArray[2] ?? string.Empty) : string.Empty;
-
-            if (resultString.Equals(TestPassedMessage, System.StringComparison.OrdinalIgnoreCase))
+            var validationCode = values[0];
+            if (validationCode != expectedValidationCode)
             {
-                ++totalTests;
-                ++passedTests;
+                logger.LogWarning("Console message grader: invalid validation code {InvalidCode} expected {ExpectedCode}.", validationCode, expectedValidationCode);
+                return;
             }
-            else if (resultString.Equals(TestFailedMessage, System.StringComparison.OrdinalIgnoreCase))
+
+            var keyword = values[1]; // determines the type of message
+            var content = values.Skip(2); // the remaining parts of the line, the effective content
+            if (parsers.TryGetValue(keyword, out var parserType))
             {
-                ++totalTests;
-                if (string.IsNullOrEmpty(comment))
-                    failedTestNames.Add(testName);
-                else
-                    failedTestNames.Add($"{testName} ({comment})");
+                var parserInstance = Activator.CreateInstance(parserType) as Parsers.IParser;
+                var parserSuccess = parserInstance.Parse(content, resultBuilder, logger);
+
+                if (!parserSuccess)
+                    resultBuilder.AddFailedToGrade(GraderResultBuilder.UnknownExercise, GraderResultBuilder.UnknownTest, "invalid result");
             }
             else
             {
-                // does not count into the total number
-                logger.LogWarning($"Console messages reader: testresult with unrecognized status {resultString}");
+                logger.LogWarning($"Console message grader: unrecognized operation {keyword}");
             }
         }
     }

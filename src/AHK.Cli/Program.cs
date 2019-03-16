@@ -30,7 +30,7 @@ namespace AHK
             var eredmenyArg = cliApp.Option("-e|--eredmeny", "Futas eredmenyeinek helye. Alapertelmezesben az aktualis konyvtarban letrehozott uj konyvtar.", Microsoft.Extensions.CommandLineUtils.CommandOptionType.SingleValue);
 
             cliApp.OnExecute(async () => {
-                return await Runner.Go(megoldasArg.Value(), konfigArg.Value(), eredmenyArg.Value(), appConfig, loggerFactory.CreateLogger("Run"));
+                return await AppRunner.Go(megoldasArg.Value(), konfigArg.Value(), eredmenyArg.Value(), appConfig, loggerFactory.CreateLogger("Run"));
             });
 
             return cliApp;

@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AHK
 {
-    internal static class Runner
+    internal static class AppRunner
     {
         public static async Task<int> Go(string assignmentsDir, string executionConfigFile, string resultsDir, AppConfig appConfig, ILogger logger)
         {

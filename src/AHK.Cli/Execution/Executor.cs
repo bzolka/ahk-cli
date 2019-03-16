@@ -80,10 +80,10 @@ namespace AHK.Execution
                             if (task.EvaluationTask != null)
                             {
                                 var graderResult = await task.EvaluationTask.ExecuteGrader(task, runnerResult, logger);
-                                if (!graderResult.GradingSuccessful)
+                                if (!graderResult.HasResult)
                                 {
                                     evaluationStatScope.OnExecutionFailed();
-                                    logger.LogError(runnerResult.Exception, "Grader failed");
+                                    logger.LogError(runnerResult.Exception, "Grading yield not results");
                                 }
                                 else
                                 {

@@ -34,6 +34,10 @@ namespace AUT.MintaHf1
         [TestMethod]
         public void Megoldas42()
         {
+            // Inconcusive eredmennyel lehet jelolni a kezzel ellenorzendo eredmenyeket
+            if(HallgatoMegoldasa.Contains("84"))
+                Assert.Inconclusive("A megoldast kezzel ellenorizni szukseges");
+            
             Assert.IsTrue(HallgatoMegoldasa.Contains("42"), "Helytelen megoldas");
         }
     }
