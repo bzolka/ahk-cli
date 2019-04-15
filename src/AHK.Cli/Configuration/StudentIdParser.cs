@@ -13,6 +13,7 @@ namespace AHK.Configuration
             if (string.IsNullOrEmpty(path) || string.IsNullOrWhiteSpace(path))
                 throw new ArgumentNullException(nameof(path));
 
+            string neptunValue = null;
             if (Directory.Exists(path))
             {
                 var neptunKodTxtFile = Directory.EnumerateFiles(path, "*", SearchOption.TopDirectoryOnly)
@@ -22,7 +23,7 @@ namespace AHK.Configuration
                     if (new FileInfo(neptunKodTxtFile).Length > SuspiciousNeptunTxtFileSizeThreshold) // safety check to make sure the file is not maliciously large to cause out-of-memory error
                         throw new Exception($"Gyanus neptunkod.txt fajl: {neptunKodTxtFile}");
 
-                    return getNeptunFromTextFileContent(File.ReadAllText(neptunKodTxtFile));
+                    neptunValue = getNeptunFromTextFileContent(File.ReadAllText(neptunKodTxtFile));
                 }
             }
             else if (File.Exists(path) && Path.GetExtension(path).Equals(".zip", StringComparison.OrdinalIgnoreCase))
@@ -38,7 +39,7 @@ namespace AHK.Configuration
                                 throw new Exception($"Gyanus neptunkod.txt fajl: {path}/{neptunKodZipEntry.Name}");
 
                             using (var zipEntryReader = new StreamReader(neptunKodZipEntry.Open()))
-                                return getNeptunFromTextFileContent(zipEntryReader.ReadToEnd());
+                                neptunValue = getNeptunFromTextFileContent(zipEntryReader.ReadToEnd());
                         }
                     }
                 }
@@ -46,7 +47,10 @@ namespace AHK.Configuration
             }
 
             // fallback is the directory/file name
-            return Path.GetFileNameWithoutExtension(path);
+            if (string.IsNullOrEmpty(neptunValue))
+                return Path.GetFileNameWithoutExtension(path);
+            else
+                return neptunValue;
         }
 
         private static string getNeptunFromTextFileContent(string textContent) =>
