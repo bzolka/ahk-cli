@@ -59,7 +59,7 @@ namespace AHK.Execution
                                 System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(outputFilePath));
                                 System.IO.File.WriteAllText(
                                         outputFilePath,
-                                        sanitizeContainerConsoleOutput(runnerResult.ConsoleOutput),
+                                        sanitizeContainerConsoleOutput(runnerResult.ConsoleOutput, task.EvaluationTask),
                                         System.Text.Encoding.UTF8);
 
                                 logger.LogTrace("Container stdout saved to artifact directory");
@@ -118,27 +118,37 @@ namespace AHK.Execution
                                                TimeSpanHelper.Smaller(task.DockerTimeout, maxTimeout),
                                                task.DockerImageParams);
 
-        private string sanitizeContainerConsoleOutput(string text)
+        private string sanitizeContainerConsoleOutput(string text, Evaluation.EvaluationTask evaluationTask)
         {
             if (string.IsNullOrEmpty(text))
                 return string.Empty;
 
-            var builder = new System.Text.StringBuilder(text.Length);
-
-            using (var sr = new System.IO.StringReader(text))
+            if (evaluationTask is Evaluation.ConsoleMessagesEvaluationTask consoleEval)
             {
-                string line;
-                while ((line = sr.ReadLine()) != null)
+                var builder = new System.Text.StringBuilder(text.Length);
+
+                using (var sr = new System.IO.StringReader(text))
                 {
-                    // skip lines that are ment for the ConsoleMessagesGrader
-                    if (line.StartsWith(@"###ahk", StringComparison.OrdinalIgnoreCase))
-                        continue;
+                    string line;
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        // skip lines that are ment for the ConsoleMessagesGrader
+                        if (line.StartsWith(@"###ahk", StringComparison.OrdinalIgnoreCase))
+                            continue;
 
-                    builder.AppendLine(line);
+                        // remove the validation code from any line; just as a safety measure
+                        line = line.Replace(consoleEval.ValidationCode, "{***}");
+
+                        builder.AppendLine(line);
+                    }
                 }
-            }
 
-            return builder.ToString();
+                return builder.ToString();
+            }
+            else
+            {
+                return text;
+            }
         }
     }
 }

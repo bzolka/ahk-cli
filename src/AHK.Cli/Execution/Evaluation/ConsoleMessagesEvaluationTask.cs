@@ -5,7 +5,7 @@ namespace AHK.Execution.Evaluation
 {
     public class ConsoleMessagesEvaluationTask : EvaluationTask
     {
-        private readonly string ValidationCode;
+        public readonly string ValidationCode;
 
         public ConsoleMessagesEvaluationTask(string validationCode)
         {
