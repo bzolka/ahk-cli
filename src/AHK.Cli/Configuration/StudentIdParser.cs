@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace AHK.Configuration
 {
@@ -53,10 +54,12 @@ namespace AHK.Configuration
                 return neptunValue;
         }
 
-        private static string getNeptunFromTextFileContent(string textContent) =>
-            textContent
-                .Replace("\r", "")
-                .Replace("\n", "")
-                .Trim();
+        private static readonly Regex studentNeptunCodeRegex = new Regex("[^a-zA-Z0-9]");
+
+        private static string getNeptunFromTextFileContent(string textContent)
+        {
+            var neptun = textContent.Replace("\r", "").Replace("\n", "").Trim();
+            return studentNeptunCodeRegex.Replace(neptun, "");
+        }
     }
 }
