@@ -9,11 +9,11 @@ namespace AHK
         {
             var appConfig = getAppConfig();
 
-            var loggerFactory = new LoggerFactory()
-                        .AddConsole(LogLevel.Warning, true)
-                        .AddFile(
-                                 pathFormat: System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData), "AHK/Log/AHK-{Date}.log"),
-                                 minimumLevel: LogLevel.Information);
+            var loggerFactory = LoggerFactory.Create(
+                loggerBuilder => loggerBuilder
+                    .AddConsole()
+                    .SetMinimumLevel(LogLevel.Warning)
+                    .AddFile(pathFormat: System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData), "AHK/Log/AHK-{Date}.log"), minimumLevel: LogLevel.Information));
 
             createCliApp(appConfig, loggerFactory)
                 .Execute(args);

@@ -18,6 +18,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8AB390BA-F1EB-4826-ABD8-87B144495550}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		..\.github\workflows\build.yml = ..\.github\workflows\build.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AHK.Grader.Domain", "Graders\AHK.Grader.Domain\AHK.Grader.Domain.csproj", "{995A0B88-F64E-4BA1-B5C7-DE290E4795B8}"
@@ -28,9 +29,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AHK.Grader.ConsoleMessages"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{A6809298-A606-4F3B-8A19-5C3930B3B2D3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AHK.Grader.ConsoleMessages.Tests", "Tests\AHK.Grader.ConsoleMessages.Tests\AHK.Grader.ConsoleMessages.Tests.csproj", "{B5011052-9BA8-4706-84A9-9020829DE9EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AHK.Grader.ConsoleMessages.Tests", "Tests\AHK.Grader.ConsoleMessages.Tests\AHK.Grader.ConsoleMessages.Tests.csproj", "{B5011052-9BA8-4706-84A9-9020829DE9EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AHK.Grader.Trx.Tests", "Tests\AHK.Grader.Trx.Tests\AHK.Grader.Trx.Tests.csproj", "{5FE6257F-37F5-4F9B-B960-5D91C4ABE57D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AHK.Grader.Trx.Tests", "Tests\AHK.Grader.Trx.Tests\AHK.Grader.Trx.Tests.csproj", "{5FE6257F-37F5-4F9B-B960-5D91C4ABE57D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

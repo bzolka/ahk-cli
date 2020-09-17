@@ -1,4 +1,4 @@
-name: CLI build
+name: Build
 
 on: [push]
 
@@ -7,19 +7,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v1
-      - name: Setup dotnet environment
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: Setup dotnet
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: "2.2.401" # SDK Version to use.
-      - name: Build app
-        run: dotnet build src/AHK.sln
-        env:
-          # Work around https://github.com/actions/setup-dotnet/issues/29
-          DOTNET_ROOT: /opt/hostedtoolcache/dncs/2.2.401/x64
+          dotnet-version: "3.1.401"
+
+      - name: Dotnet build
+        shell: bash
+        run: |
+          pushd src
+          dotnet build --configuration Release --output ./output
+          popd
+
       - name: Test
-        run: dotnet test src/AHK.sln
-        env:
-          # Work around https://github.com/actions/setup-dotnet/issues/29
-          DOTNET_ROOT: /opt/hostedtoolcache/dncs/2.2.401/x64
+        run: |
+          pushd src
+          dotnet test AHK.sln
+          popd
