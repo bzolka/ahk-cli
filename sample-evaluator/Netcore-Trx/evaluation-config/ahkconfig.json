@@ -1,0 +1,14 @@
+{
+    "docker": {
+        "imageName": "sampleevaluator1",
+        "solutionInContainer": "/submission",
+        "resultInContainer": "/result",
+        "evaluationTimeout": "00:00:30",
+        "containerParams": {
+            "memory": "268435456"
+        }
+    },
+    "trx": {
+        "trxFileName": "testresult.trx"
+    }
+}

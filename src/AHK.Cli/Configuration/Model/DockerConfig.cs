@@ -6,7 +6,7 @@ namespace AHK.Configuration
     public class DockerConfig
     {
         public string ImageName { get; set; }
-        public string SolutionInContainer { get; set; } = "/megoldas";
+        public string SolutionInContainer { get; set; } = "/submission";
         public string ResultInContainer { get; set; }
         public TimeSpan EvaluationTimeout { get; set; } = TimeSpan.FromMinutes(3);
         public Dictionary<string, string> ContainerParams { get; set; }
