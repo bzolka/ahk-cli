@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Ahk.Cli": {
+      "commandName": "Project",
+      "commandLineArgs": "-k \"./Console-log/futtato-konfiguracio\" -m \"./minta-hallgatoi-megoldasok\" -e \"./futas-eredmenye-{datum}\"",
+      "workingDirectory": "$(SolutionDir)..\\MintaHfEllenorzo"
+    }
+  }
+}

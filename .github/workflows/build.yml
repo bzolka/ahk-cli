@@ -32,7 +32,7 @@ jobs:
         working-directory: sample-evaluator/Netcore-Trx
         run: |
           docker build -t sampleevaluator1 evaluator-container
-          dotnet ./../../bin/AHK.dll -k "./evaluation-config" -m "./../sample-input" -e "./evaluation-output"
+          dotnet ./../../bin/Ahk.dll -k "./evaluation-config" -m "./../sample-input" -e "./evaluation-output"
           if (-not (Test-Path "evaluation-output/eredmenyek.xlsx")) { exit -1 }
           if ((Get-ChildItem -Include *.trx -Recurse | where { $_.Length -gt 0}).Length -ne 4) { exit -1 }
         
@@ -41,6 +41,6 @@ jobs:
         shell: pwsh
         run: |
           docker build -t sampleevaluator2 evaluator-container
-          dotnet ./../../bin/AHK.dll -k "./evaluation-config" -m "./../sample-input" -e "./evaluation-output"
+          dotnet ./../../bin/Ahk.dll -k "./evaluation-config" -m "./../sample-input" -e "./evaluation-output"
           if (-not (Test-Path "evaluation-output/eredmenyek.xlsx")) { exit -1 }
           if ((Get-ChildItem -Include *.txt -Recurse | where { $_.Length -gt 0}).Length -ne 4) { exit -1 }
