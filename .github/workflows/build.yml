@@ -1,4 +1,4 @@
-name: Build
+name: Build and test
 
 on: [push]
 
@@ -15,17 +15,32 @@ jobs:
       - name: Setup dotnet
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: "3.1.401"
+          dotnet-version: "3.1.407"
 
-      - name: Dotnet build
-        shell: bash
+      - name: dotnet build
+        working-directory: src
         run: |
-          pushd src
-          dotnet build --configuration Release --output ./output
-          popd
+          dotnet build -r linux-x64 -c Release
+          dotnet publish -r linux-x64 -c Release -o ./../bin --no-build
 
-      - name: Test
+      - name: dotnet test
+        working-directory: src
+        run: dotnet test
+
+      - name: Test sampleevaluator1
+        shell: pwsh
+        working-directory: sample-evaluator/Netcore-Trx
         run: |
-          pushd src
-          dotnet test AHK.sln
-          popd
+          docker build -t sampleevaluator1 evaluator-container
+          dotnet ./../../bin/AHK.dll -k "./evaluation-config" -m "./../sample-input" -e "./evaluation-output"
+          if (-not (Test-Path "evaluation-output/eredmenyek.xlsx")) { exit -1 }
+          if ((Get-ChildItem -Include *.trx -Recurse | where { $_.Length -gt 0}).Length -ne 4) { exit -1 }
+        
+      - name: Test sampleevaluator2
+        working-directory: sample-evaluator/Console-log
+        shell: pwsh
+        run: |
+          docker build -t sampleevaluator2 evaluator-container
+          dotnet ./../../bin/AHK.dll -k "./evaluation-config" -m "./../sample-input" -e "./evaluation-output"
+          if (-not (Test-Path "evaluation-output/eredmenyek.xlsx")) { exit -1 }
+          if ((Get-ChildItem -Include *.txt -Recurse | where { $_.Length -gt 0}).Length -ne 4) { exit -1 }
