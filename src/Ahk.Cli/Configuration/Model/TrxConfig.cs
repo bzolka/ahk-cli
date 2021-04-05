@@ -1,8 +1,8 @@
-﻿namespace Ahk.Configuration
+namespace Ahk.Configuration
 {
     public class TrxConfig : IConfigValidator
     {
-        public string TrxFileName { get; set; }
+        public string? TrxFileName { get; set; }
 
         public void Validate()
         {

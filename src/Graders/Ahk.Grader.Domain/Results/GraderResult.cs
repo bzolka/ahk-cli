@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace Ahk.Grader
 {
@@ -8,7 +8,7 @@ namespace Ahk.Grader
     public class GraderResult
     {
         public readonly bool HasResult;
-        public readonly IReadOnlyList<ExerciseResult> Exercises;
+        public readonly IReadOnlyList<ExerciseResult>? Exercises;
 
         public static readonly GraderResult NoResult = new GraderResult();
 
@@ -23,6 +23,6 @@ namespace Ahk.Grader
             this.HasResult = false;
         }
 
-        public GradingOutcomes GradingOutcome => this.HasResult ? this.Exercises.AccumulateOutcome() : GradingOutcomes.FailedToGrade;
+        public GradingOutcomes GradingOutcome => this.HasResult ? this.Exercises!.AccumulateOutcome() : GradingOutcomes.FailedToGrade;
     }
 }

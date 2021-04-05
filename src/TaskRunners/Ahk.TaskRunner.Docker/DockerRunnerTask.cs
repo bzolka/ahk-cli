@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace Ahk.TaskRunner
@@ -9,16 +9,16 @@ namespace Ahk.TaskRunner
         public readonly string SolutionDirectoryInMachine;
         public readonly string SolutionDirectoryInContainer;
         public readonly string ResultPathInMachine;
-        public readonly string ResultPathInContainer;
-        public readonly IReadOnlyDictionary<string, string> ContainerParams;
+        public readonly string? ResultPathInContainer;
+        public readonly IReadOnlyDictionary<string, string>? ContainerParams;
 
         public DockerRunnerTask(
                     Guid taskId,
                     string imageName,
                     string solutionDirrectoryInMachine, string solutionDirectoryInContainer,
-                    string resultPathInMachine, string resultPathInContainer,
+                    string resultPathInMachine, string? resultPathInContainer,
                     TimeSpan evaluationTimeout,
-                    IReadOnlyDictionary<string, string> containerParams = null)
+                    IReadOnlyDictionary<string, string>? containerParams = null)
             : base(taskId, evaluationTimeout)
         {
             this.ImageName = imageName;

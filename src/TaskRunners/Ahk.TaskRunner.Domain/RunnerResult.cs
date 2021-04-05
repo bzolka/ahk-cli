@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 
 namespace Ahk.TaskRunner
 {
     public class RunnerResult
     {
         public readonly string ConsoleOutput;
-        public readonly Exception Exception;
+        public readonly Exception? Exception;
 
         public RunnerResult(string consoleOutput)
         {

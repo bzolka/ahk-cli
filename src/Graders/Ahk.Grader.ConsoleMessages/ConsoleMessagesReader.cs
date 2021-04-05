@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -80,7 +80,7 @@ namespace Ahk.Grader.ConsoleMessages
             if (parsers.TryGetValue(keyword, out var parserType))
             {
                 var parserInstance = Activator.CreateInstance(parserType) as Parsers.IParser;
-                var parserSuccess = parserInstance.Parse(content, resultBuilder, logger);
+                var parserSuccess = parserInstance!.Parse(content, resultBuilder, logger);
 
                 if (!parserSuccess)
                     resultBuilder.AddFailedToGrade(GraderResultBuilder.UnknownExercise, GraderResultBuilder.UnknownTest, "invalid result");

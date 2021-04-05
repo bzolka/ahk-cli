@@ -1,4 +1,4 @@
-﻿namespace Ahk.Grader
+namespace Ahk.Grader
 {
     /// <summary>
     /// GraderResult 1 ---- * ExerciseResult 1 ---- * TestResult
@@ -12,7 +12,7 @@
         public readonly int ResultPoints;
         public readonly string Description;
 
-        public TestResult(string testName, int resultPoints, GradingOutcomes gradingOutcome, string description)
+        public TestResult(string testName, int resultPoints, GradingOutcomes gradingOutcome, string? description)
         {
             this.TestName = string.IsNullOrEmpty(testName) ? DefaultTestName : testName;
             this.ResultPoints = resultPoints;

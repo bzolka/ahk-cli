@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -37,7 +37,7 @@ namespace Ahk
         private static IEnumerable<string> enumeratePossibleAssignmentSolutions(string assignmentsDir) =>
             Directory.EnumerateDirectories(assignmentsDir).Union(Directory.EnumerateFiles(assignmentsDir, "*.zip"));
 
-        private static ExecutionTask createTaskFrom(string path, string resultsDir, AhkJobConfig jobConfig, ILogger logger)
+        private static ExecutionTask? createTaskFrom(string path, string resultsDir, AhkJobConfig jobConfig, ILogger logger)
         {
             // there is no name available, use the directory name for now
             var studentName = Path.GetFileNameWithoutExtension(path);
@@ -51,16 +51,16 @@ namespace Ahk
 
             resultsDir = Path.Combine(resultsDir, studentNeptun);
             return new ExecutionTask(studentName, studentNeptun, path, resultsDir,
-                                     jobConfig.Docker.ImageName, jobConfig.Docker.SolutionInContainer, jobConfig.Docker.ResultInContainer, jobConfig.Docker.EvaluationTimeout, jobConfig.Docker.ContainerParams,
-                                     createEvaluationTask(jobConfig));
+                                     jobConfig.Docker!.ImageName!, jobConfig.Docker.SolutionInContainer, jobConfig.Docker.ResultInContainer, jobConfig.Docker.EvaluationTimeout, jobConfig.Docker.ContainerParams,
+                                     createEvaluationTask(jobConfig)!);
         }
 
-        private static EvaluationTask createEvaluationTask(AhkJobConfig effectiveConfig)
+        private static EvaluationTask? createEvaluationTask(AhkJobConfig effectiveConfig)
         {
             if (effectiveConfig.Trx != null)
-                return new TrxEvaluationTask(effectiveConfig.Trx.TrxFileName);
+                return new TrxEvaluationTask(effectiveConfig.Trx.TrxFileName!);
             else if (effectiveConfig.ConsoleMessageGrader != null)
-                return new ConsoleMessagesEvaluationTask(effectiveConfig.ConsoleMessageGrader.ValidationCode);
+                return new ConsoleMessagesEvaluationTask(effectiveConfig.ConsoleMessageGrader.ValidationCode!);
             else
                 return null;
         }

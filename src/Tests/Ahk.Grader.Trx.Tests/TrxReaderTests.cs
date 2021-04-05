@@ -18,7 +18,7 @@ namespace Ahk.Grader.Trx.Tests
 
                 Assert.IsTrue(result.HasResult);
 
-                var exResult = result.Exercises[0];
+                var exResult = result.Exercises![0];
                 Assert.AreEqual(4, exResult.TestsResults.Count);
 
                 var t1 = exResult.TestsResults.SingleOrDefault(x => x.TestName == "TPassed");
@@ -44,6 +44,6 @@ namespace Ahk.Grader.Trx.Tests
         }
 
         private static System.IO.Stream getSampleFile(string filename)
-            => Assembly.GetExecutingAssembly().GetManifestResourceStream("Ahk.Grader.Trx.Tests.assets." + filename);
+            => Assembly.GetExecutingAssembly().GetManifestResourceStream("Ahk.Grader.Trx.Tests.assets." + filename)!;
     }
 }

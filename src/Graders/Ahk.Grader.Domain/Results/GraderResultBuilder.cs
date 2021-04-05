@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -25,13 +25,13 @@ namespace Ahk.Grader
                 this.exercises[exerciseName] = new List<TestResult>() { testResult };
         }
 
-        public void AddResult(string exerciseName, string testName, int resultPoints, string description)
+        public void AddResult(string exerciseName, string testName, int resultPoints, string? description)
             => Add(exerciseName, new TestResult(testName, resultPoints, GradingOutcomes.Graded, description));
 
-        public void AddInconclusive(string exerciseName, string testName, string description)
+        public void AddInconclusive(string exerciseName, string testName, string? description)
             => Add(exerciseName, new TestResult(testName, 0, GradingOutcomes.Inconclusive, description));
 
-        public void AddFailedToGrade(string exerciseName, string testName, string description)
+        public void AddFailedToGrade(string exerciseName, string testName, string? description)
             => Add(exerciseName, new TestResult(testName, 0, GradingOutcomes.FailedToGrade, description));
 
         public GraderResult ToResult()

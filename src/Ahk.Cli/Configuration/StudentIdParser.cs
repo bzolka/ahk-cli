@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -14,7 +14,7 @@ namespace Ahk.Configuration
             if (string.IsNullOrEmpty(path) || string.IsNullOrWhiteSpace(path))
                 throw new ArgumentNullException(nameof(path));
 
-            string neptunValue = null;
+            string? neptunValue = null;
             if (Directory.Exists(path))
             {
                 var neptunKodTxtFile = Directory.EnumerateFiles(path, "*", SearchOption.TopDirectoryOnly)

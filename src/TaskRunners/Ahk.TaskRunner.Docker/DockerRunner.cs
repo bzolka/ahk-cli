@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -15,7 +15,7 @@ namespace Ahk.TaskRunner
         private readonly ITempPathProvider tempPathProvider;
         private readonly DockerClient docker;
 
-        public DockerRunner(DockerRunnerTask task, ILogger logger, ITempPathProvider tempPathProvider = null)
+        public DockerRunner(DockerRunnerTask task, ILogger logger, ITempPathProvider? tempPathProvider = null)
         {
             this.task = task ?? throw new ArgumentNullException(nameof(task));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));

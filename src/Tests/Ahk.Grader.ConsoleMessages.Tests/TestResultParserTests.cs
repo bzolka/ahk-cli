@@ -140,7 +140,7 @@ more comment";
             Assert.IsTrue(tr.Description.EndsWith("more comment"));
         }
 
-        private TestResult assertResult(GraderResult result, string exerciseName, string testName, GradingOutcomes expectedTestOutcome = GradingOutcomes.Graded)
+        private TestResult assertResult(GraderResult result, string? exerciseName, string testName, GradingOutcomes expectedTestOutcome = GradingOutcomes.Graded)
         {
             if (result == null)
                 throw new ArgumentNullException();

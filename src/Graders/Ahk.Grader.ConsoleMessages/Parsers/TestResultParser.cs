@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 
@@ -19,19 +19,19 @@ namespace Ahk.Grader.ConsoleMessages.Parsers
             var parts = new Stack<string>(content.Reverse());
 
             // must have these two
-            if (!parts.TryPop(out string testName))
+            if (!parts.TryPop(out string? testName))
             {
                 logger.LogWarning($"Console messages reader: testresult operation with too few parameters");
                 return false;
             }
-            if (!parts.TryPop(out string resultString))
+            if (!parts.TryPop(out string? resultString))
             {
                 logger.LogWarning($"Console messages reader: testresult operation with too few parameters");
                 return false;
             }
 
             // other parts are optional
-            parts.TryPop(out string comment);
+            parts.TryPop(out string? comment);
 
             if (!tryGetTestNameAndExerciseName(ref testName, out string exerciseName))
                 return false;
@@ -42,7 +42,7 @@ namespace Ahk.Grader.ConsoleMessages.Parsers
             return true;
         }
 
-        private bool tryProcessResultString(string testName, string exerciseName, string resultString, string comment, GraderResultBuilder resultBuilder, ILogger logger)
+        private bool tryProcessResultString(string testName, string exerciseName, string resultString, string? comment, GraderResultBuilder resultBuilder, ILogger logger)
         {
             if (resultString.Equals(TestPassedMessage, System.StringComparison.OrdinalIgnoreCase))
             {

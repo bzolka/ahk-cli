@@ -1,8 +1,8 @@
-﻿namespace Ahk.Configuration
+namespace Ahk.Configuration
 {
     public class ConsoleMessageGraderConfig : IConfigValidator
     {
-        public string ValidationCode { get; set; }
+        public string? ValidationCode { get; set; }
 
         public void Validate()
         {

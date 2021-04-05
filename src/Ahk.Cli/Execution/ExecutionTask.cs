@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace Ahk.Execution
@@ -14,14 +14,14 @@ namespace Ahk.Execution
 
         public readonly string DockerImageName;
         public readonly string DockerSolutionDirectoryInContainer;
-        public readonly string DockerResultPathInContainer;
+        public readonly string? DockerResultPathInContainer;
         public readonly TimeSpan DockerTimeout;
-        public readonly IReadOnlyDictionary<string, string> DockerImageParams;
+        public readonly IReadOnlyDictionary<string, string>? DockerImageParams;
 
         public readonly Evaluation.EvaluationTask EvaluationTask;
 
         public ExecutionTask(string studentName, string studentNeptun, string solutionPath, string resultArtifactPath,
-            string dockerImageName, string dockerSolutionDirectoryInContainer, string dockerResultPathInContainer, TimeSpan dockerTimeout, IReadOnlyDictionary<string, string> dockerImageParams,
+            string dockerImageName, string dockerSolutionDirectoryInContainer, string? dockerResultPathInContainer, TimeSpan dockerTimeout, IReadOnlyDictionary<string, string>? dockerImageParams,
             Evaluation.EvaluationTask evaluationTask)
         {
             this.StudentName = studentName;

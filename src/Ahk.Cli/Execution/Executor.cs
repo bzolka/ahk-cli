@@ -15,7 +15,7 @@ namespace Ahk.Execution
             this.maxTimeout = maxTimeout ?? TimeSpan.FromMinutes(8);
         }
 
-        public async Task<ExecutionStatistics> Execute(RunConfig runConfig, IProgress<int> progress = null)
+        public async Task<ExecutionStatistics> Execute(RunConfig runConfig, IProgress<int>? progress = null)
         {
             if (runConfig == null)
                 throw new ArgumentNullException(nameof(runConfig));
@@ -129,7 +129,7 @@ namespace Ahk.Execution
 
                 using (var sr = new System.IO.StringReader(text))
                 {
-                    string line;
+                    string? line;
                     while ((line = sr.ReadLine()) != null)
                     {
                         // skip lines that are ment for the ConsoleMessagesGrader

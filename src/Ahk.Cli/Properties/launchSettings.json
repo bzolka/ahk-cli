@@ -2,8 +2,8 @@
   "profiles": {
     "Ahk.Cli": {
       "commandName": "Project",
-      "commandLineArgs": "-k \"./Console-log/futtato-konfiguracio\" -m \"./minta-hallgatoi-megoldasok\" -e \"./futas-eredmenye-{datum}\"",
-      "workingDirectory": "$(SolutionDir)..\\MintaHfEllenorzo"
+      "commandLineArgs": "-k \"./Console-log/evaluation-config\" -m \"./sample-input\" -e \"./evaluation-output-{date}\"",
+      "workingDirectory": "$(SolutionDir)..\\sample-evaluator"
     }
   }
 }

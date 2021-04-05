@@ -62,7 +62,7 @@ apple and banana"
             Assert.IsTrue(result.HasResult);
             Assert.AreEqual(GradingOutcomes.Graded, result.GradingOutcome);
 
-            Assert.AreEqual(1, result.Exercises.Count);
+            Assert.AreEqual(1, result.Exercises!.Count);
             Assert.AreEqual(1, result.Exercises[0].SumResultPoints);
 
             var testResults = result.Exercises[0].TestsResults;
@@ -98,7 +98,7 @@ apple and banana"
             Assert.IsTrue(result.HasResult);
             Assert.AreEqual(GradingOutcomes.Graded, result.GradingOutcome);
 
-            Assert.AreEqual(1, result.Exercises.Count);
+            Assert.AreEqual(1, result.Exercises!.Count);
 
             var testResults = result.Exercises[0].TestsResults;
             Assert.AreEqual(1, testResults.Count);
@@ -130,7 +130,7 @@ apple and banana"
             Assert.IsTrue(result.HasResult);
             Assert.AreEqual(GradingOutcomes.Graded, result.GradingOutcome);
 
-            var testResults = result.Exercises[0].TestsResults;
+            var testResults = result.Exercises![0].TestsResults;
             Assert.AreEqual(2, testResults.Count);
 
             var tr = testResults.SingleOrDefault(x => x.TestName == "banana");
