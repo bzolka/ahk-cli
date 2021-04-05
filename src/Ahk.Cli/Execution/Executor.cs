@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
@@ -15,7 +15,7 @@ namespace Ahk.Execution
             this.maxTimeout = maxTimeout ?? TimeSpan.FromMinutes(8);
         }
 
-        public async Task<ExecutionStatistics> Execute(RunConfig runConfig, IProgress<int>? progress = null)
+        public async Task<ExecutionStatistics> Execute(RunConfig runConfig, Action<double, double>? progress = null)
         {
             if (runConfig == null)
                 throw new ArgumentNullException(nameof(runConfig));
@@ -29,7 +29,7 @@ namespace Ahk.Execution
                     await executeTask(t, evaluationResult, xlsxWriter);
 
                     ++finishedCount;
-                    progress?.Report((int)((double)finishedCount / runConfig.Tasks.Count * 100));
+                    progress?.Invoke(runConfig.Tasks.Count, finishedCount);
                 }
                 return evaluationResult.GetEvaluationStatistics();
             }
