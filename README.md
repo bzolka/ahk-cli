@@ -1,6 +1,6 @@
 # Ahk CLI
 
-![Build](https://github.com/akosdudas/ahk-cli/workflows/Build%20and%20test/badge.svg?branch=master)
+[![Build](https://github.com/akosdudas/ahk-cli/actions/workflows/build.yml/badge.svg)](https://github.com/akosdudas/ahk-cli/actions/workflows/build.yml)
 
 Ahk CLI is a .NET Core console application that executes assessment on student homework assignments by running a containerized evaluation logic.
 

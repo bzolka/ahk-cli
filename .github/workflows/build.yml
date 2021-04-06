@@ -1,4 +1,4 @@
-name: Build and test
+name: Build
 
 on: [push]
 
@@ -19,28 +19,8 @@ jobs:
 
       - name: dotnet build
         working-directory: src
-        run: |
-          dotnet build -r linux-x64 -c Release
-          dotnet publish -r linux-x64 -c Release -o ./../bin --no-build
+        run: dotnet build
 
       - name: dotnet test
         working-directory: src
         run: dotnet test
-
-      - name: Test sampleevaluator1
-        shell: pwsh
-        working-directory: sample-evaluator/Netcore-Trx
-        run: |
-          docker build -t sampleevaluator1 evaluator-container
-          dotnet ./../../bin/Ahk.dll -k "./evaluation-config" -m "./../sample-input" -e "./evaluation-output"
-          if (-not (Test-Path "evaluation-output/eredmenyek.xlsx")) { exit -1 }
-          if ((Get-ChildItem -Include *.trx -Recurse | where { $_.Length -gt 0}).Length -ne 4) { exit -1 }
-        
-      - name: Test sampleevaluator2
-        working-directory: sample-evaluator/Console-log
-        shell: pwsh
-        run: |
-          docker build -t sampleevaluator2 evaluator-container
-          dotnet ./../../bin/Ahk.dll -k "./evaluation-config" -m "./../sample-input" -e "./evaluation-output"
-          if (-not (Test-Path "evaluation-output/eredmenyek.xlsx")) { exit -1 }
-          if ((Get-ChildItem -Include *.txt -Recurse | where { $_.Length -gt 0}).Length -ne 4) { exit -1 }

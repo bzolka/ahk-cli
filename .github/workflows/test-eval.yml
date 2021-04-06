@@ -1,0 +1,42 @@
+name: Test evaluation
+
+on: [workflow_dispatch]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: "3.1.407"
+
+      - name: dotnet build
+        working-directory: src
+        run: |
+          dotnet build -r linux-x64 -c Release
+          dotnet publish -r linux-x64 -c Release -o ./../bin --no-build
+        
+      - name: Test sample evaluator with ConsoleMessage grader
+        working-directory: sample-evaluator/Console-log
+        shell: pwsh
+        run: |
+          docker build -t sampleevaluator2 evaluator-container
+          dotnet ./../../bin/Ahk.dll -k "./evaluation-config" -m "./../sample-input" -e "./evaluation-output"
+          if (-not (Test-Path "evaluation-output/eredmenyek.xlsx")) { exit -1 }
+          if ((Get-ChildItem -Include *.txt -Recurse | where { $_.Length -gt 0}).Length -ne 4) { exit -1 }
+
+      - name: Test sample evaluator with TRX grader
+        shell: pwsh
+        working-directory: sample-evaluator/Netcore-Trx
+        run: |
+          docker build -t sampleevaluator1 evaluator-container
+          dotnet ./../../bin/Ahk.dll -k "./evaluation-config" -m "./../sample-input" -e "./evaluation-output"
+          if (-not (Test-Path "evaluation-output/eredmenyek.xlsx")) { exit -1 }
+          if ((Get-ChildItem -Include *.trx -Recurse | where { $_.Length -gt 0}).Length -ne 4) { exit -1 }
