@@ -21,22 +21,26 @@ jobs:
         working-directory: src
         run: |
           dotnet build -r linux-x64 -c Release
-          dotnet publish -r linux-x64 -c Release -o ./../bin --no-build
+          dotnet publish -r linux-x64 -c Release -o ./../app --no-build
+        
+      - name: Build sample Docker image with ConsoleMessage grader
+        run: docker build -t sampleevaluator2 sample-evaluator/Console-log/evaluator-container
+
+      - name: Build sample Docker image with TRX grader
+        run: docker build -t sampleevaluator1 sample-evaluator/Netcore-Trx/evaluator-container
         
       - name: Test sample evaluator with ConsoleMessage grader
-        working-directory: sample-evaluator/Console-log
+        working-directory: app
         shell: pwsh
         run: |
-          docker build -t sampleevaluator2 evaluator-container
-          dotnet ./../../bin/Ahk.dll -k "./evaluation-config" -m "./../sample-input" -e "./evaluation-output"
-          if (-not (Test-Path "evaluation-output/eredmenyek.xlsx")) { exit -1 }
-          if ((Get-ChildItem -Include *.txt -Recurse | where { $_.Length -gt 0}).Length -ne 4) { exit -1 }
+          dotnet Ahk.dll -k "./../sample-evaluator/Console-log/evaluation-config" -m "./../sample-evaluator/sample-input" -e "./evaluation-output-cm"
+          if (-not (Test-Path "evaluation-output-cm/eredmenyek.xlsx")) { exit -1 }
+          if ((Get-ChildItem -Path evaluation-output-cm -Include *.txt -Recurse | where { $_.Length -gt 0}).Length -ne 4) { exit -1 }
 
       - name: Test sample evaluator with TRX grader
         shell: pwsh
-        working-directory: sample-evaluator/Netcore-Trx
+        working-directory: app
         run: |
-          docker build -t sampleevaluator1 evaluator-container
-          dotnet ./../../bin/Ahk.dll -k "./evaluation-config" -m "./../sample-input" -e "./evaluation-output"
-          if (-not (Test-Path "evaluation-output/eredmenyek.xlsx")) { exit -1 }
-          if ((Get-ChildItem -Include *.trx -Recurse | where { $_.Length -gt 0}).Length -ne 4) { exit -1 }
+          dotnet Ahk.dll -k "./../sample-evaluator/Netcore-Trx/evaluation-config" -m "./../sample-evaluator/sample-input" -e "./evaluation-output-trx"
+          if (-not (Test-Path "evaluation-output-trx/eredmenyek.xlsx")) { exit -1 }
+          if ((Get-ChildItem -Path evaluation-output-trx -Include *.trx -Recurse | where { $_.Length -gt 0}).Length -ne 4) { exit -1 }
