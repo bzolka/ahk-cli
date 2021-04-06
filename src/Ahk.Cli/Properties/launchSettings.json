@@ -2,7 +2,7 @@
   "profiles": {
     "Ahk.Cli": {
       "commandName": "Project",
-      "commandLineArgs": "-k \"./Console-log/evaluation-config\" -m \"./sample-input\" -e \"./evaluation-output-{date}\"",
+      "commandLineArgs": "eval docker trx --trxfile testresult.trx --image sampleevaluator1 --artifactdir /result",
       "workingDirectory": "$(SolutionDir)..\\sample-evaluator"
     }
   }

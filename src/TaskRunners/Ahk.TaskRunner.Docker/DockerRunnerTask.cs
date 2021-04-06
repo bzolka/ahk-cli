@@ -5,31 +5,29 @@ namespace Ahk.TaskRunner
 {
     public class DockerRunnerTask : RunnerTask
     {
-        public readonly string ImageName;
-        public readonly string SolutionDirectoryInMachine;
-        public readonly string SolutionDirectoryInContainer;
-        public readonly string ResultPathInMachine;
-        public readonly string? ResultPathInContainer;
-        public readonly IReadOnlyDictionary<string, string>? ContainerParams;
-
         public DockerRunnerTask(
-                    Guid taskId,
+                    string submissionSource, string studentId, TimeSpan evaluationTimeout,
                     string imageName,
-                    string solutionDirrectoryInMachine, string solutionDirectoryInContainer,
-                    string resultPathInMachine, string? resultPathInContainer,
-                    TimeSpan evaluationTimeout,
-                    IReadOnlyDictionary<string, string>? containerParams = null)
-            : base(taskId, evaluationTimeout)
+                    string submissionDirectoryInMachine, string submissionDirectoryInContainer,
+                    string artifactPathInMachine, string? artifactPathInContainer,
+                    IReadOnlyCollection<string>? containerParams = null)
+            : base(submissionSource, studentId, evaluationTimeout)
         {
             this.ImageName = imageName;
-            this.SolutionDirectoryInMachine = solutionDirrectoryInMachine;
-            this.SolutionDirectoryInContainer = solutionDirectoryInContainer;
-            this.ResultPathInMachine = resultPathInMachine;
-            this.ResultPathInContainer = resultPathInContainer;
-            this.ContainerParams = containerParams ?? new Dictionary<string, string>();
+            this.SubmissionDirectoryInMachine = submissionDirectoryInMachine;
+            this.SubmissionDirectoryInContainer = submissionDirectoryInContainer;
+            this.ArtifactPathInMachine = artifactPathInMachine;
+            this.ArtifactPathInContainer = artifactPathInContainer;
+            this.ContainerParams = containerParams ?? Array.Empty<string>();
         }
 
-        public bool HasResultDirectory => !string.IsNullOrEmpty(ResultPathInMachine);
-        public bool ShouldFetchResult => !string.IsNullOrEmpty(ResultPathInContainer) && HasResultDirectory;
+        public string ImageName { get; }
+        public string SubmissionDirectoryInMachine { get; }
+        public string SubmissionDirectoryInContainer { get; }
+        public string ArtifactPathInMachine { get; }
+        public string? ArtifactPathInContainer { get; }
+        public IReadOnlyCollection<string> ContainerParams { get; }
+
+        public bool HasArtifactDirectory => !string.IsNullOrEmpty(ArtifactPathInMachine) && !string.IsNullOrEmpty(ArtifactPathInContainer);
     }
 }

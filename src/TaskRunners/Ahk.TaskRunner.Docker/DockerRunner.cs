@@ -22,7 +22,7 @@ namespace Ahk.TaskRunner
             this.tempPathProvider = tempPathProvider ?? DefaultTempPathProvider.Instance;
             this.docker = DockerConnectionHelper.GetConnectionConfiguration().CreateClient();
 
-            logger.LogTrace("Created Docker runner for {TaskId}", task.TaskId);
+            logger.LogTrace($"Created Docker runner for source {task.SubmissionSource} student {task.StudentId}");
         }
 
         public async Task<RunnerResult> Run()
@@ -95,10 +95,12 @@ namespace Ahk.TaskRunner
         {
             try
             {
-                var createContainerParams = new Docker.DotNet.Models.CreateContainerParameters() {
+                var createContainerParams = new Docker.DotNet.Models.CreateContainerParameters()
+                {
                     Image = task.ImageName,
                     Labels = getContainerLabels(),
-                    HostConfig = new Docker.DotNet.Models.HostConfig() {
+                    HostConfig = new Docker.DotNet.Models.HostConfig()
+                    {
                         Mounts = new List<Docker.DotNet.Models.Mount>() { }
                     }
                 };
@@ -107,22 +109,24 @@ namespace Ahk.TaskRunner
                     setImageParameters(createContainerParams, task.ContainerParams);
 
                 System.IO.Directory.CreateDirectory(tempPathForSolutionDirCopy);
-                var effectiveSolutionFolderToMount = await extractSolutionGetEffectiveDirectory(task.SolutionDirectoryInMachine, tempPathForSolutionDirCopy);
+                var effectiveSolutionFolderToMount = await extractSolutionGetEffectiveDirectory(task.SubmissionDirectoryInMachine, tempPathForSolutionDirCopy);
 
-                createContainerParams.HostConfig.Mounts.Add(new Docker.DotNet.Models.Mount() {
+                createContainerParams.HostConfig.Mounts.Add(new Docker.DotNet.Models.Mount()
+                {
                     Type = "bind",
                     Source = effectiveSolutionFolderToMount,
-                    Target = task.SolutionDirectoryInContainer,
+                    Target = task.SubmissionDirectoryInContainer,
                     ReadOnly = false
                 });
 
-                if (task.ShouldFetchResult)
+                if (task.HasArtifactDirectory)
                 {
-                    System.IO.Directory.CreateDirectory(task.ResultPathInMachine); // must exist for the mount
-                    createContainerParams.HostConfig.Mounts.Add(new Docker.DotNet.Models.Mount() {
+                    System.IO.Directory.CreateDirectory(task.ArtifactPathInMachine); // must exist for the mount
+                    createContainerParams.HostConfig.Mounts.Add(new Docker.DotNet.Models.Mount()
+                    {
                         Type = "bind",
-                        Source = task.ResultPathInMachine,
-                        Target = task.ResultPathInContainer,
+                        Source = task.ArtifactPathInMachine,
+                        Target = task.ArtifactPathInContainer,
                         ReadOnly = false
                     });
                 }
@@ -161,23 +165,33 @@ namespace Ahk.TaskRunner
                 throw new System.IO.FileNotFoundException("Cannot find solution to evaluate", sourceDirectoryOrFile);
         }
 
-        private void setImageParameters(Docker.DotNet.Models.CreateContainerParameters createContainerParams, IReadOnlyDictionary<string, string> containerParams)
+        private void setImageParameters(Docker.DotNet.Models.CreateContainerParameters createContainerParams, IReadOnlyCollection<string> containerParams)
         {
             foreach (var param in containerParams)
             {
+                var eqIdx = param.IndexOf('=');
+                if (eqIdx == -1)
+                {
+                    logger.LogWarning("Container param {ParamName} invalid", param);
+                    continue;
+                }
+
                 try
                 {
-                    if (trySetDynamicPropertyOn(createContainerParams, param.Key, param.Value))
+                    var key = param.Substring(0, eqIdx);
+                    var value = param.Substring(eqIdx + 1);
+
+                    if (trySetDynamicPropertyOn(createContainerParams, key, value))
                         continue;
 
-                    if (trySetDynamicPropertyOn(createContainerParams.HostConfig, param.Key, param.Value))
+                    if (trySetDynamicPropertyOn(createContainerParams.HostConfig, key, value))
                         continue;
 
-                    logger.LogWarning("Unknown container parameter {ParamName}", param.Key);
+                    logger.LogWarning("Unknown container parameter {ParamName}", key);
                 }
                 catch
                 {
-                    logger.LogWarning("Cannot set container parameter {ParamName} to value {ParamVale}", param.Key, param.Value);
+                    logger.LogWarning("Cannot set container parameter {ParamName}", param);
                 }
             }
         }
@@ -211,14 +225,15 @@ namespace Ahk.TaskRunner
             => new Dictionary<string, string>()
             {
                 { DockerCleanup.ContainerLabel, "" },
-                { "Ahk_SolutionDir", task.SolutionDirectoryInMachine }
+                { "Ahk_SolutionDir", task.SubmissionDirectoryInMachine }
             };
 
         private async Task ensureImageExists()
         {
             try
             {
-                var findImageResult = await docker.Images.ListImagesAsync(new Docker.DotNet.Models.ImagesListParameters() {
+                var findImageResult = await docker.Images.ListImagesAsync(new Docker.DotNet.Models.ImagesListParameters()
+                {
                     MatchName = task.ImageName
                 });
 
@@ -229,7 +244,8 @@ namespace Ahk.TaskRunner
                 }
 
                 logger.LogTrace("Pulling image {ImageName}", task.ImageName);
-                await docker.Images.CreateImageAsync(new Docker.DotNet.Models.ImagesCreateParameters() {
+                await docker.Images.CreateImageAsync(new Docker.DotNet.Models.ImagesCreateParameters()
+                {
                     FromImage = task.ImageName
                 },
                     null,

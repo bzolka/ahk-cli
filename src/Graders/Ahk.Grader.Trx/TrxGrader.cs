@@ -1,4 +1,3 @@
-﻿using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
@@ -11,26 +10,26 @@ namespace Ahk.Grader
 
         public TrxGrader(TrxGraderTask task, ILogger logger)
         {
-            this.task = task ?? throw new ArgumentNullException(nameof(task));
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.task = task;
+            this.logger = logger;
         }
 
         public async Task<GraderResult> GradeResult()
         {
             if (!System.IO.File.Exists(task.TrxFilePath))
             {
-                logger.LogInformation($"No Trx file for task {task.TaskId} student {task.StudentNeptun} at '{task.TrxFilePath}'");
+                logger.LogInformation($"No trx file found for submission {task.SubmissionSource} student {task.StudentId} at '{task.TrxFilePath}'");
                 return GraderResult.NoResult;
             }
             else
             {
-                logger.LogTrace($"Found Trx file for task {task.TaskId} student {task.StudentNeptun} at '{task.TrxFilePath}'");
+                logger.LogTrace($"Found trx file for submission {task.SubmissionSource} student {task.StudentId} at '{task.TrxFilePath}'");
 
                 var trxReader = new Trx.TrxReader(logger);
                 var result = await trxReader.Parse(task.TrxFilePath);
 
                 if (!result.HasResult)
-                    logger.LogInformation($"No tests parsed from Trx for task {task.TaskId} student {task.StudentNeptun} at '{task.TrxFilePath}'");
+                    logger.LogInformation($"No tests parsed from Trx for submission {task.SubmissionSource} student {task.StudentId} at '{task.TrxFilePath}'");
 
                 return result;
             }

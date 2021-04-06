@@ -1,4 +1,3 @@
-﻿using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
@@ -11,15 +10,15 @@ namespace Ahk.Grader
 
         public ConsoleMessagesGrader(ConsoleMessagesGraderTask task, ILogger logger)
         {
-            this.task = task ?? throw new ArgumentNullException(nameof(task));
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.task = task;
+            this.logger = logger;
         }
 
         public async Task<GraderResult> GradeResult()
         {
             if (string.IsNullOrEmpty(task.ConsoleLog))
             {
-                logger.LogInformation($"Empty console log for task {task.TaskId} student {task.StudentNeptun}");
+                logger.LogInformation($"Empty console log for submission {task.SubmissionSource} student {task.StudentId}");
                 return GraderResult.NoResult;
             }
             else
@@ -28,7 +27,7 @@ namespace Ahk.Grader
                 var result = await reader.Grade(task.ConsoleLog);
 
                 if (!result.HasResult)
-                    logger.LogInformation($"No result parsed from console log for task {task.TaskId} student {task.StudentNeptun}");
+                    logger.LogInformation($"No result parsed from console log for source {task.SubmissionSource} student {task.StudentId}");
 
                 return result;
             }

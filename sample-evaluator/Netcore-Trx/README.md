@@ -1,8 +1,7 @@
 # Sample evaluator using .NET Core unit tests
 
-- [Docker image](evaluator-container) performing the evaluation
-- [Source code of the evaluator](evaluator-container/src) based on .NET Core unit tests
-- [Evaluation configuration](evaluation-config) controlling the `Ahk CLI`
-- [Sample student submissions](../sample-input)
+A sample evaluator using .NET Core unit tests. See the Dockerfile and the source code of the evaluator [here](evaluator-container).
 
-Execute: `dotnet Ahk.dll -k "./evaluation-config" -m "./../sample-input" -e "./evaluation-output-{date}"`
+Build the Docker image: `docker build -t sampleevaluator1 evaluator-container`
+
+Execute: `dotnet ahk.dll eval docker trx --trxfile testresult.trx --image sampleevaluator1 --mount-path /submission --artifact-path /result -s ./../sample-input -o "./evaluation-output-{date}"`

@@ -1,18 +1,15 @@
-﻿using System;
-
 namespace Ahk.Grader
 {
     public abstract class GraderTask
     {
-        public readonly Guid TaskId;
-        public readonly string StudentName;
-        public readonly string StudentNeptun;
-
-        public GraderTask(Guid taskId, string studentName, string studentNeptun)
+        protected GraderTask(string submissionSource, string studentId)
         {
-            this.TaskId = taskId;
-            this.StudentName = studentName ?? throw new ArgumentNullException(nameof(studentName));
-            this.StudentNeptun = studentNeptun ?? throw new ArgumentNullException(nameof(studentNeptun));
+            this.SubmissionSource = submissionSource;
+            this.StudentId = studentId;
         }
+
+        public string SubmissionSource { get; }
+        public string StudentId { get; }
+
     }
 }

@@ -1,16 +1,20 @@
-﻿using System;
+using System;
 
 namespace Ahk.TaskRunner
 {
     public abstract class RunnerTask
     {
-        public readonly Guid TaskId;
-        public readonly TimeSpan EvaluationTimeout;
-
-        public RunnerTask(Guid taskId, TimeSpan evaluationTimeout)
+        protected RunnerTask(string submissionSource, string studentId, TimeSpan evaluationTimeout)
         {
-            this.TaskId = taskId;
+            this.SubmissionSource = submissionSource;
+            this.StudentId = studentId;
             this.EvaluationTimeout = evaluationTimeout;
+
         }
+
+        public string SubmissionSource { get; }
+        public string StudentId { get; }
+        public TimeSpan EvaluationTimeout { get; }
+
     }
 }

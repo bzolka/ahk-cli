@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
@@ -12,7 +12,8 @@ namespace Ahk.TaskRunner
         {
             using (var docker = DockerConnectionHelper.GetConnectionConfiguration().CreateClient())
             {
-                var containers = await docker.Containers.ListContainersAsync(new Docker.DotNet.Models.ContainersListParameters() {
+                var containers = await docker.Containers.ListContainersAsync(new Docker.DotNet.Models.ContainersListParameters()
+                {
                     All = true,
                     Filters = new Dictionary<string, IDictionary<string, bool>>()
                     {
@@ -23,7 +24,7 @@ namespace Ahk.TaskRunner
                 if (containers.Count == 0)
                     return;
 
-                logger.LogWarning("Found {Count} Docker containers", containers.Count);
+                logger.LogInformation("Found {Count} Docker containers", containers.Count);
 
                 foreach (var c in containers)
                 {

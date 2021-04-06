@@ -1,4 +1,4 @@
-﻿namespace Ahk.Execution
+namespace Ahk.Commands.Eval
 {
     public partial class ExecutionStatisticsRecorder
     {
@@ -6,8 +6,7 @@
         public int ExecutedSuccessfully { get; private set; }
         public int FailedExecution { get; private set; }
 
-        public ExecutionStatistics GetEvaluationStatistics()
-            => new ExecutionStatistics(AllTasks, ExecutedSuccessfully, FailedExecution);
+        public bool HasFailed() => FailedExecution > 0;
 
         public ExecutionStatisticsRecorderScope OnExecutionStarted()
         {

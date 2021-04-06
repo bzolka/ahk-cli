@@ -1,8 +1,7 @@
 # Sample evaluator using PowerShell
 
-- [Docker image](evaluator-container) performing the evaluation
-- [Source code of the evaluator](evaluator-container/src) based on a PowerShell script
-- [Evaluation configuration](evaluation-config) controlling the `Ahk CLI`
-- [Sample student submissions](../sample-input)
+A sample evaluator using a PowerShell script. See the Dockerfile and the source code of the evaluator [here](evaluator-container).
 
-Execute: `dotnet Ahk.dll -k "./evaluation-config" -m "./../sample-input" -e "./evaluation-output-{date}"`
+Build the Docker image: `docker build -t sampleevaluator2 evaluator-container`
+
+Execute the evaluation: `dotnet ahk.dll eval docker consolemessage --validationCode Valid55Code --image sampleevaluator2 --mount-path /submission --artifact-path /result -s ./../sample-input -o "./evaluation-output-{date}"`

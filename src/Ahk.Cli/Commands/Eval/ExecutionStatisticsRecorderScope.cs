@@ -1,6 +1,6 @@
-﻿using System;
+using System;
 
-namespace Ahk.Execution
+namespace Ahk.Commands.Eval
 {
     partial class ExecutionStatisticsRecorder
     {

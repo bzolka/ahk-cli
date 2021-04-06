@@ -1,15 +1,13 @@
-﻿using System;
-
 namespace Ahk.Grader
 {
     public class TrxGraderTask : GraderTask
     {
-        public readonly string TrxFilePath;
-
-        public TrxGraderTask(Guid taskId, string studentName, string studentNeptun, string trxFilePath)
-            : base(taskId, studentName, studentNeptun)
+        public TrxGraderTask(string submissionSource, string studentId, string trxFilePath)
+            : base(submissionSource, studentId)
         {
-            this.TrxFilePath = trxFilePath ?? throw new ArgumentNullException(nameof(trxFilePath));
+            this.TrxFilePath = trxFilePath;
         }
+
+        public string TrxFilePath { get; }
     }
 }
