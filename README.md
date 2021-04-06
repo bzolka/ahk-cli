@@ -43,6 +43,10 @@ A directory containing the submissions to evaluate. The current directory if not
 
 A directory to use as output; the results of the evaluation are placed here. A new directory in the current directory if not specified.
 
+#### `-d|--studentid`
+
+A file name expected in the root of every submission folder/zip containing the identifier of the student. If value is empty string uses the name of the folder/file as student identifier. Default value is: `neptun.txt`.
+
 #### `--image`
 
 The name of the Docker image to execute. A new container is spawned for each submission.

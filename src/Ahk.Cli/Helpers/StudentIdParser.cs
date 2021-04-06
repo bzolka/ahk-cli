@@ -7,37 +7,36 @@ namespace Ahk
     internal static class StudentIdParser
     {
         public const int SuspiciousNeptunTxtFileSizeThreshold = 100;
-        public const string FileName = "neptun.txt";
 
-        public static string GetStudentId(string path)
+        public static string GetStudentId(string submissionPath, string studentIdfileName)
         {
-            if (string.IsNullOrEmpty(path) || string.IsNullOrWhiteSpace(path))
-                throw new ArgumentNullException(nameof(path));
+            if (string.IsNullOrEmpty(submissionPath) || string.IsNullOrWhiteSpace(submissionPath))
+                throw new ArgumentNullException(nameof(submissionPath));
 
             string? studentIdValue = null;
-            if (Directory.Exists(path))
+            if (Directory.Exists(submissionPath))
             {
-                var textFile = Directory.EnumerateFiles(path, "*", SearchOption.TopDirectoryOnly)
-                                        .FirstOrDefault(f => Path.GetFileName(f).Equals(FileName, StringComparison.OrdinalIgnoreCase));
+                var textFile = Directory.EnumerateFiles(submissionPath, "*", SearchOption.TopDirectoryOnly)
+                                        .FirstOrDefault(f => Path.GetFileName(f).Equals(studentIdfileName, StringComparison.OrdinalIgnoreCase));
                 if (textFile != null)
                 {
                     if (new FileInfo(textFile).Length > SuspiciousNeptunTxtFileSizeThreshold) // safety check to make sure the file is not maliciously large to cause out-of-memory error
-                        throw new Exception($"Suspicious {FileName} file: {textFile}");
+                        throw new Exception($"Suspicious {studentIdfileName} file: {textFile}");
 
                     studentIdValue = getStudentIdFromTextFileContent(File.ReadAllText(textFile));
                 }
             }
-            else if (File.Exists(path) && Path.GetExtension(path).Equals(".zip", StringComparison.OrdinalIgnoreCase))
+            else if (File.Exists(submissionPath) && Path.GetExtension(submissionPath).Equals(".zip", StringComparison.OrdinalIgnoreCase))
             {
                 try
                 {
-                    using (var zipFile = System.IO.Compression.ZipFile.OpenRead(path))
+                    using (var zipFile = System.IO.Compression.ZipFile.OpenRead(submissionPath))
                     {
-                        var zipEntry = zipFile.Entries.FirstOrDefault(f => Path.GetFileName(f.Name).Equals(FileName, StringComparison.OrdinalIgnoreCase));
+                        var zipEntry = zipFile.Entries.FirstOrDefault(f => Path.GetFileName(f.Name).Equals(studentIdfileName, StringComparison.OrdinalIgnoreCase));
                         if (zipEntry != null)
                         {
                             if (zipEntry.Length > SuspiciousNeptunTxtFileSizeThreshold) // safety check to make sure the file is not maliciously large to cause out-of-memory error
-                                throw new Exception($"Suspicious {FileName} file: {path}/{zipEntry.Name}");
+                                throw new Exception($"Suspicious {studentIdfileName} file: {submissionPath}/{zipEntry.Name}");
 
                             using (var zipEntryReader = new StreamReader(zipEntry.Open()))
                                 studentIdValue = getStudentIdFromTextFileContent(zipEntryReader.ReadToEnd());
@@ -49,7 +48,7 @@ namespace Ahk
 
             // fallback is the directory/file name
             if (string.IsNullOrEmpty(studentIdValue))
-                return Path.GetFileNameWithoutExtension(path);
+                return Path.GetFileNameWithoutExtension(submissionPath);
             else
                 return studentIdValue;
         }

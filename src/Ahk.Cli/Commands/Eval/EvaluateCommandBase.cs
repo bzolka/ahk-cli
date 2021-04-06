@@ -26,6 +26,10 @@ namespace Ahk.Commands.Eval
         [CommandOption("output", 'o', Description = "A directory to use as output; the results of the evaluation are placed here. A new directory in the current directory if not specified.")]
         public string? OutputDirArg { get; set; }
 
+        [CommandOption("studentid", 'd', Description = "A file name expected in the root of every submission folder/zip containing the identifier of the student.")]
+        public string? StudentIdTextFileName { get; set; } = @"neptun.txt";
+
+
         protected override async Task executeCommandCore()
         {
             try
@@ -86,7 +90,7 @@ namespace Ahk.Commands.Eval
 
         private async Task executeTask(string submissionPath, string outputDirEffective, ExcelResultsWriter.XlsxResultsWriter resultsWriter)
         {
-            var studentId = StudentIdParser.GetStudentId(submissionPath);
+            var studentId = getStudentId(submissionPath);
             var artifactPath = Path.Combine(outputDirEffective, studentId);
             using (var evaluationStatScope = evaluationStatistics.OnExecutionStarted())
             {
@@ -145,5 +149,14 @@ namespace Ahk.Commands.Eval
 
         protected abstract ITaskRunner CreateRunner(string submissionSource, string studentId, string artifactPath);
         protected abstract IGrader CreateGrader(string submissionSource, string studentId, string artifactPath, RunnerResult runnerResult);
+
+        private string getStudentId(string submissionPath)
+        {
+            if (!string.IsNullOrEmpty(StudentIdTextFileName))
+                return StudentIdParser.GetStudentId(submissionPath, StudentIdTextFileName);
+
+            return Path.GetFileNameWithoutExtension(submissionPath);
+        }
+
     }
 }
