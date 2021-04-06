@@ -65,16 +65,12 @@ Maximum time frame for a container to finish evaluation; the container is termin
 
 #### `--container-arg`
 
-Optional parameters for container creation, e.g., memory amount. Each item is a key-value pair in the form of `key=value`. The key is a parameter of [Docker Engine API CreateContainer](https://docs.docker.com/engine/api/v1.30/#operation/ContainerCreate) operations. (Supports only string and number values.)
-
-E.g.: `--container-arg memory=268435456 --container-arg hostname=app`
-
-Enables the TRX-based grader and sets the file name of the TRX file (within the results folder).
+Optional parameters for container creation, e.g., memory amount. Each item is a key-value pair in the form of `key=value`. The key is a parameter of [Docker Engine API CreateContainer](https://docs.docker.com/engine/api/v1.25/#operation/ContainerCreate) operations. (Supports only string and number values.) E.g.: `--container-arg memory=268435456 --container-arg hostname=app`
 
 #### `[eval docker trx] --trxfile`
 
-When using the `TRX` grading mechanism, specifies the name of the `TRX` file to parse for results. Expected in the output folder of the container (`--artifact-path`).
+Enables the `TRX` grading mechanism and specifies the name of the `TRX` file to parse for results. Expected in the output folder of the container (`--artifact-path`).
 
 #### `[eval docker consolemessage] --validationcode`
 
-When using the `ConsoleMessage` grading mechanism, specifies the _validation code_ expected in every message printed to console by the evaluation application.
+Enables the `ConsoleMessage` grading mechanism and specifies the _validation code_ expected in every message printed to console by the evaluation application.

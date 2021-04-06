@@ -42,7 +42,7 @@ else {
 
 # **** Second group of exercises, e.g., optional exercises
 # The name of the exercise before the @ character specifies the name of the group (imsc@Exercise 3)
-# A @ opcionalis, ha nincs a feladatcsoportnak neve, nem kell megadni
+# @ is optiopnal, if the exercise group has no name, ommit it
 
 if (Test-Path $Exercise2File) {
     if ((Get-Content $Exercise2File) -like "*84*") {
