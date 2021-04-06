@@ -124,7 +124,7 @@ namespace Ahk.Commands.Eval
                         }
                         else
                         {
-                            resultsWriter.Write(string.Empty, studentId, graderResult);
+                            resultsWriter.Write(studentId, graderResult);
                             evaluationStatScope.OnExecutionCompleted();
                         }
                     }

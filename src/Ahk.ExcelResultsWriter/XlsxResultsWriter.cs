@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -42,18 +42,16 @@ namespace Ahk.ExcelResultsWriter
             this.cellStyleInconclusive.WrapText = true;
 
             this.headerRow = workSheet.CreateRow(0);
-            headerRow.CreateCell(0, CellType.String).SetCellValueWithSanitize("Név");
-            headerRow.CreateCell(1, CellType.String).SetCellValueWithSanitize("Neptun kód");
+            headerRow.CreateCell(0, CellType.String).SetCellValueWithSanitize("Student ID");
         }
 
-        public void Write(string studentName, string studentId, GraderResult graderResult)
+        public void Write(string studentId, GraderResult graderResult)
         {
             updateHeaderRowWithExercises(graderResult.Exercises);
 
             var row = workSheet.CreateRow(nextRowIndex++);
 
-            row.CreateCell(0, CellType.String).SetCellValueWithSanitize(studentName);
-            row.CreateCell(1, CellType.String).SetCellValueWithSanitize(studentId.ToUpper());
+            row.CreateCell(0, CellType.String).SetCellValueWithSanitize(studentId);
 
             foreach (var exercise in graderResult.Exercises)
             {
@@ -82,15 +80,15 @@ namespace Ahk.ExcelResultsWriter
             {
                 if (!exerciseToColumnIndex.TryGetValue(exercise.ExerciseName, out var index))
                 {
-                    index = 2 + (exerciseToColumnIndex.Count * 2);
+                    index = 1 + (exerciseToColumnIndex.Count * 2);
                     exerciseToColumnIndex[exercise.ExerciseName] = index;
 
                     var columnPrefix = string.Empty;
                     if (exercise.ExerciseName != ExerciseResult.DefaultExerciseName)
                         columnPrefix = $"({exercise.ExerciseName}) ";
 
-                    headerRow.CreateCell(index, CellType.String).SetCellValueWithSanitize(columnPrefix + "Megjegyzés a hallgatónak");
-                    headerRow.CreateCell(index + 1, CellType.String).SetCellValueWithSanitize(columnPrefix + "Eredmény");
+                    headerRow.CreateCell(index, CellType.String).SetCellValueWithSanitize(columnPrefix + "Comment");
+                    headerRow.CreateCell(index + 1, CellType.String).SetCellValueWithSanitize(columnPrefix + "Grade");
 
                     workSheet.SetColumnWidth(index, 800 * 20);
                 }
