@@ -102,7 +102,8 @@ namespace Ahk.TaskRunner
                     HostConfig = new Docker.DotNet.Models.HostConfig()
                     {
                         Mounts = new List<Docker.DotNet.Models.Mount>() { }
-                    }
+                    },
+                    Env = task.ContainerEnvVariables.ToList()
                 };
 
                 if (task.ContainerParams != null && task.ContainerParams.Any())

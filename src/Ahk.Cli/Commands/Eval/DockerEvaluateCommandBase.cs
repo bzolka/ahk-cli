@@ -20,6 +20,9 @@ namespace Ahk.Commands.Eval
         [CommandOption("timeout", Description = "Maximum time frame for a container to finish evaluation; the container is terminated if exceeded.")]
         public TimeSpan Timeout { get; set; } = TimeSpan.FromMinutes(3);
 
+        [CommandOption("container-env", Description = "Key-value pairs to pass to the container as environment variables (multiple values are allowed)")]
+        public IReadOnlyCollection<string>? ContainerEnvVariables { get; set; }
+
         [CommandOption("container-arg", Description = "Key-value pairs to pass to Docker when creating the container (multiple values are allowed)")]
         public IReadOnlyCollection<string>? ContainerParams { get; set; }
 
@@ -29,6 +32,6 @@ namespace Ahk.Commands.Eval
         }
 
         protected override ITaskRunner CreateRunner(string submissionSource, string studentId, string artifactPath)
-            => new DockerRunner(new DockerRunnerTask(submissionSource, studentId, Timeout, ImageName, submissionSource, SubmissionDirInContainer, artifactPath, ArtifactDirInContainer, ContainerParams), logger);
+            => new DockerRunner(new DockerRunnerTask(submissionSource, studentId, Timeout, ImageName, submissionSource, SubmissionDirInContainer, artifactPath, ArtifactDirInContainer, ContainerEnvVariables, ContainerParams), logger);
     }
 }

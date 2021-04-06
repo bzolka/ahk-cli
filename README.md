@@ -63,6 +63,10 @@ The path within the container to fetch artifacts from (e.g., output files, gener
 
 Maximum time frame for a container to finish evaluation; the container is terminated if exceeded. Default: `00:03:00`.
 
+#### `--container-env`
+
+Environment variables to pass to the container. Specify the argument multiple times to add multiple variables. E.g.: `--container-env PARAM1=VALUE1 --container-env PARAM2=VAL2`
+
 #### `--container-arg`
 
 Optional parameters for container creation, e.g., memory amount. Each item is a key-value pair in the form of `key=value`. The key is a parameter of [Docker Engine API CreateContainer](https://docs.docker.com/engine/api/v1.25/#operation/ContainerCreate) operations. (Supports only string and number values.) E.g.: `--container-arg memory=268435456 --container-arg hostname=app`
