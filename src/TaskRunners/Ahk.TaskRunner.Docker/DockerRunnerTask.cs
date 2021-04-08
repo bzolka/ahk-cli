@@ -14,7 +14,7 @@ namespace Ahk.TaskRunner
                     IReadOnlyCollection<string>? containerParams = null)
             : base(submissionSource, studentId, evaluationTimeout)
         {
-            this.ImageName = imageName;
+            this.ImageName = getCanonicalImageName(imageName);
             this.SubmissionDirectoryInMachine = submissionDirectoryInMachine;
             this.SubmissionDirectoryInContainer = submissionDirectoryInContainer;
             this.ArtifactPathInMachine = artifactPathInMachine;
@@ -32,5 +32,8 @@ namespace Ahk.TaskRunner
         public IReadOnlyCollection<string> ContainerParams { get; }
 
         public bool HasArtifactDirectory => !string.IsNullOrEmpty(ArtifactPathInMachine) && !string.IsNullOrEmpty(ArtifactPathInContainer);
+
+        private static string getCanonicalImageName(string imageName)
+            => imageName.Contains(':') ? imageName : $"{imageName}:latest";
     }
 }

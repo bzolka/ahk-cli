@@ -235,7 +235,14 @@ namespace Ahk.TaskRunner
             {
                 var findImageResult = await docker.Images.ListImagesAsync(new Docker.DotNet.Models.ImagesListParameters()
                 {
-                    MatchName = task.ImageName
+                    Filters = new Dictionary<string, IDictionary<string, bool>>()
+                    {
+                        ["reference"] = new Dictionary<string, bool>()
+                        {
+                            [task.ImageName] = true
+                        }
+                    },
+                    All = false
                 });
 
                 if (findImageResult.Any())
