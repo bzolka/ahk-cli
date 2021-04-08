@@ -2,42 +2,28 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 
 namespace Ahk.TaskRunner
 {
-    internal static class ImagePuller
+    public static class ImagePuller
     {
-        public static async Task EnsureImageExists(Docker.DotNet.DockerClient docker, ContainerConfig config, ILogger logger)
+        public static async Task<bool> CheckImageExists(string imageName)
         {
-            try
-            {
-                var findImageResult = await docker.Images.ListImagesAsync(new Docker.DotNet.Models.ImagesListParameters()
-                {
-                    Filters = new Dictionary<string, IDictionary<string, bool>>()
-                    {
-                        ["reference"] = new Dictionary<string, bool>()
-                        {
-                            [config.ImageName] = true
-                        }
-                    },
-                    All = false
-                });
+            using var docker = DockerConnectionHelper.GetConnectionConfiguration().CreateClient();
 
-                if (findImageResult.Any())
-                {
-                    logger.LogTrace("Found image {ImageName} with Docker ID {ImageId}", config.ImageName, findImageResult.First().ID);
-                    return;
-                }
-
-                logger.LogWarning("Pulling image {ImageName}", config.ImageName);
-                await docker.Images.CreateImageAsync(new Docker.DotNet.Models.ImagesCreateParameters() { FromImage = config.ImageName }, null, new Progress<Docker.DotNet.Models.JSONMessage>());
-                logger.LogTrace("Pulling image {ImageName} completed", config.ImageName);
-            }
-            catch (Exception ex)
+            var findImageResult = await docker.Images.ListImagesAsync(new Docker.DotNet.Models.ImagesListParameters()
             {
-                throw new Exception("Pulling image failed", ex);
-            }
+                Filters = new Dictionary<string, IDictionary<string, bool>>() { ["reference"] = new Dictionary<string, bool>() { [imageName] = true } },
+                All = false
+            });
+
+            return findImageResult.Any();
+        }
+
+        public static async Task Pull(string imageName)
+        {
+            using var docker = DockerConnectionHelper.GetConnectionConfiguration().CreateClient();
+            await docker.Images.CreateImageAsync(new Docker.DotNet.Models.ImagesCreateParameters() { FromImage = imageName }, null, new Progress<Docker.DotNet.Models.JSONMessage>());
         }
     }
 }

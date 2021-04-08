@@ -20,7 +20,7 @@ namespace Ahk.Commands.Eval
         protected override IGrader CreateGrader(string submissionSource, string studentId, string artifactPath, RunnerResult runnerResult)
             => new ConsoleMessagesGrader(new ConsoleMessagesGraderTask(submissionSource, studentId, runnerResult.ConsoleOutput, this.ValidationCode), logger);
 
-        protected override string sanitizeContainerConsoleOutput(string text)
+        protected override string SanitizeContainerConsoleOutput(string text)
         {
             var builder = new System.Text.StringBuilder(text.Length);
 

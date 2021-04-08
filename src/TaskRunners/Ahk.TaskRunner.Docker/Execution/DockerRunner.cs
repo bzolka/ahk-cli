@@ -11,8 +11,6 @@ namespace Ahk.TaskRunner
         protected readonly ILogger logger;
         protected readonly ITempPathProvider tempPathProvider;
 
-        private static bool imagesPulled = false;
-
         protected DockerRunner(DockerRunnerTask task, ILogger logger, ITempPathProvider? tempPathProvider = null)
         {
             this.task = task ?? throw new ArgumentNullException(nameof(task));
@@ -35,13 +33,6 @@ namespace Ahk.TaskRunner
             logger.LogTrace($"Created Docker runner for source {task.SubmissionSource} student {task.StudentId}");
             try
             {
-                // need to pull images only once
-                if (!imagesPulled)
-                {
-                    await pullImages(docker);
-                    imagesPulled = true;
-                }
-
                 using var timeout = new CancellationTokenSource(task.EvaluationTimeout);
 
                 using var tempDirectoryForSolutionCopy = tempPathProvider.GetTempDirectory();
@@ -66,7 +57,6 @@ namespace Ahk.TaskRunner
         public void Dispose() { }
 
         protected abstract Task<string> runCore(Docker.DotNet.DockerClient docker, CancellationToken timeout, string solutionFolderToMount);
-        protected virtual Task pullImages(Docker.DotNet.DockerClient docker) => ImagePuller.EnsureImageExists(docker, task.Container, logger);
 
         protected void configureMount(Docker.DotNet.Models.CreateContainerParameters createContainerParams, string solutionFolderToMount)
         {

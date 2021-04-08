@@ -12,12 +12,6 @@ namespace Ahk.TaskRunner
         {
         }
 
-        protected override async Task pullImages(DockerClient docker)
-        {
-            await base.pullImages(docker);
-            await ImagePuller.EnsureImageExists(docker, task.ServiceContainer!, logger);
-        }
-
         protected override async Task<string> runCore(DockerClient docker, CancellationToken timeout, string solutionFolderToMount)
         {
             await using var containerNetwork = await NetworkCreationHelper.CreateNewNetwork(logger, docker, timeout);

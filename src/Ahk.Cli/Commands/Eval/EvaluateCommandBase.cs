@@ -57,6 +57,8 @@ namespace Ahk.Commands.Eval
             if (!submissions.Any())
                 throw new CommandException($"Submission directory '{submissionsDirEffective}' has no subdirectories or zip files");
 
+            await Initialize(ctx);
+
             var progressExec = ctx.AddTask("Running evaluation");
             progressExec.MaxValue = submissions.Count;
 
@@ -92,7 +94,7 @@ namespace Ahk.Commands.Eval
                     {
                         var outputFilePath = Path.Combine(artifactPath, "_console-log.txt");
                         Directory.CreateDirectory(Path.GetDirectoryName(outputFilePath));
-                        await File.WriteAllTextAsync(outputFilePath, sanitizeContainerConsoleOutput(runnerResult.ConsoleOutput), System.Text.Encoding.UTF8);
+                        await File.WriteAllTextAsync(outputFilePath, SanitizeContainerConsoleOutput(runnerResult.ConsoleOutput), System.Text.Encoding.UTF8);
                     }
 
                     if (runnerResult.HadError())
@@ -128,7 +130,8 @@ namespace Ahk.Commands.Eval
             }
         }
 
-        protected virtual string sanitizeContainerConsoleOutput(string text) => text;
+        protected virtual string SanitizeContainerConsoleOutput(string text) => text;
+        protected virtual Task Initialize(ProgressContext ctx) => Task.CompletedTask;
 
         protected abstract ITaskRunner CreateRunner(string submissionSource, string studentId, string artifactPath);
         protected abstract IGrader CreateGrader(string submissionSource, string studentId, string artifactPath, RunnerResult runnerResult);

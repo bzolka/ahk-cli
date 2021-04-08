@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Ahk.TaskRunner;
 using CliFx.Attributes;
 using Microsoft.Extensions.Logging;
@@ -50,5 +51,38 @@ namespace Ahk.Commands.Eval
                     submissionSource, SubmissionDirInContainer, artifactPath, ArtifactDirInContainer,
                     string.IsNullOrEmpty(ServiceContainerImage) ? null : new ContainerConfig(imageName: ServiceContainerImage, envVariables: ServiceContainerEnvVariables, name: ServiceContainerName)),
                 logger);
+
+        protected override async Task Initialize(Spectre.Console.ProgressContext ctx)
+        {
+            await runInitStep(ctx, "Checking Docker connection", () => DockerConnectionHelper.CheckConnection());
+
+            var imagesToPull = new List<string>();
+            await runInitStep(ctx, "Checking Docker images",
+                async () =>
+                {
+                    if (!await ImagePuller.CheckImageExists(ImageName))
+                        imagesToPull.Add(ImageName);
+
+                    if (!string.IsNullOrEmpty(ServiceContainerImage) && !await ImagePuller.CheckImageExists(ServiceContainerImage))
+                        imagesToPull.Add(ServiceContainerImage);
+                });
+
+            foreach (var imageName in imagesToPull)
+                await runInitStep(ctx, $"Pulling {imageName}", () => ImagePuller.Pull(imageName));
+        }
+
+        private async Task runInitStep(Spectre.Console.ProgressContext ctx, string name, Func<Task> action)
+        {
+            var progressPrepare = ctx.AddTask(name);
+            try
+            {
+                await action();
+            }
+            catch (Exception ex)
+            {
+                throw new CliFx.Exceptions.CommandException(ex.Message);
+            }
+            progressPrepare.MaxValue = progressPrepare.Value = 1;
+        }
     }
 }
