@@ -2,7 +2,7 @@
   "profiles": {
     "Ahk.Cli": {
       "commandName": "Project",
-      "commandLineArgs": "eval docker trx --trxfile testresult.trx --image sampleevaluator1 --artifact-path /result",
+      "commandLineArgs": "eval docker consolemessage --validationcode Valid55Code --image sampleevaluator-cm --artifact-path /result --container-env WEBSERVER=web --service-container nginx:latest --service-container-name web -s sample-input",
       "workingDirectory": "$(SolutionDir)..\\sample-evaluator"
     }
   }

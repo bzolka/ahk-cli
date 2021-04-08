@@ -32,34 +32,20 @@ namespace Ahk.Commands.Eval
 
         protected override async Task executeCommandCore()
         {
-            try
-            {
-                await AnsiConsole.Progress()
-                      .Columns(new ProgressColumn[]
-                      {
+            await AnsiConsole.Progress()
+                  .Columns(new ProgressColumn[]
+                  {
                               new TaskDescriptionColumn(),
                               new ProgressBarColumn(),
                               new PercentageColumn(),
                               new RemainingTimeColumn(),
-                      })
-                      .StartAsync(execCore);
+                  })
+                  .StartAsync(execCore);
 
-                if (evaluationStatistics!.HasFailed())
-                {
-                    AnsiConsole.MarkupLine($"[{Color.Yellow}]Some submissions were not evaluated:[/] [{Color.Green}]{evaluationStatistics.ExecutedSuccessfully} completed[/] and [{Color.Red}]{evaluationStatistics.FailedExecution} FAILED[/].");
-                    throw new CommandException("");
-                }
-                else
-                {
-                    AnsiConsole.MarkupLine($"[{Color.Green}]Completed the evaluation of {evaluationStatistics.ExecutedSuccessfully} submissions[/]");
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Failed to execute evaluation");
-                AnsiConsole.MarkupLine($"[{Color.Red}]FAILED[/]");
-                throw new CommandException("Failed to execute evaluation");
-            }
+            if (evaluationStatistics!.HasFailed())
+                AnsiConsole.MarkupLine($"[{Color.Yellow}]Some submissions were not evaluated:[/] [{Color.Green}]{evaluationStatistics.ExecutedSuccessfully} completed[/] and [{Color.Red}]{evaluationStatistics.FailedExecution} FAILED[/].");
+            else
+                AnsiConsole.MarkupLine($"[{Color.Green}]Completed the evaluation of {evaluationStatistics.ExecutedSuccessfully} submissions[/]");
         }
 
         private async Task execCore(ProgressContext ctx)
@@ -106,10 +92,7 @@ namespace Ahk.Commands.Eval
                     {
                         var outputFilePath = Path.Combine(artifactPath, "_console-log.txt");
                         Directory.CreateDirectory(Path.GetDirectoryName(outputFilePath));
-                        File.WriteAllText(
-                                outputFilePath,
-                                runnerResult.ConsoleOutput,
-                                System.Text.Encoding.UTF8);
+                        await File.WriteAllTextAsync(outputFilePath, sanitizeContainerConsoleOutput(runnerResult.ConsoleOutput), System.Text.Encoding.UTF8);
                     }
 
                     if (runnerResult.HadError())

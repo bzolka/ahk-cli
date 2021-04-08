@@ -6,6 +6,32 @@ $Exercise2File = "/submission/imsc.txt"
 Write-Output "Starting evaluation"
 
 
+# Connecting to the service container
+$WebServerDns = $Env:WEBSERVER
+$ConnectionTestRetry = 10
+$ConnectionTestOk = $false
+Write-Host "Checking connection to $WebServerDns"
+# The service container might need some time to start up, poll for status
+while($ConnectionTestRetry -gt 0)
+{
+    $ConnectionTestRetry--
+    Write-Host "Trying to connect..."
+    try {
+        Invoke-WebRequest -UseBasicParsing -Uri $WebServerDns
+        $ConnectionTestOk = $true
+        Write-Output "Web server operational"
+        break;
+    }
+    catch
+    {
+        Start-Sleep -Seconds 3
+    }
+}
+if(-not $ConnectionTestOk) {
+    Write-Output "Cannot connect to web server"
+    exit 0
+}
+
 
 
 # **** First group of exercises

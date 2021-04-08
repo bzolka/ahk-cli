@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 
 namespace Ahk.TaskRunner
 {
@@ -7,33 +6,27 @@ namespace Ahk.TaskRunner
     {
         public DockerRunnerTask(
                     string submissionSource, string studentId, TimeSpan evaluationTimeout,
-                    string imageName,
+                    ContainerConfig container,
                     string submissionDirectoryInMachine, string submissionDirectoryInContainer,
                     string artifactPathInMachine, string? artifactPathInContainer,
-                    IReadOnlyCollection<string>? containerEnvVariables = null,
-                    IReadOnlyCollection<string>? containerParams = null)
+                    ContainerConfig? serviceContainer = null)
             : base(submissionSource, studentId, evaluationTimeout)
         {
-            this.ImageName = getCanonicalImageName(imageName);
+            this.Container = container;
             this.SubmissionDirectoryInMachine = submissionDirectoryInMachine;
             this.SubmissionDirectoryInContainer = submissionDirectoryInContainer;
             this.ArtifactPathInMachine = artifactPathInMachine;
             this.ArtifactPathInContainer = artifactPathInContainer;
-            this.ContainerParams = containerParams ?? Array.Empty<string>();
-            this.ContainerEnvVariables = containerEnvVariables ?? Array.Empty<string>();
+            this.ServiceContainer = serviceContainer;
         }
 
-        public string ImageName { get; }
+        public ContainerConfig Container { get; }
         public string SubmissionDirectoryInMachine { get; }
         public string SubmissionDirectoryInContainer { get; }
         public string ArtifactPathInMachine { get; }
         public string? ArtifactPathInContainer { get; }
-        public IReadOnlyCollection<string> ContainerEnvVariables { get; }
-        public IReadOnlyCollection<string> ContainerParams { get; }
+        public ContainerConfig? ServiceContainer { get; }
 
         public bool HasArtifactDirectory => !string.IsNullOrEmpty(ArtifactPathInMachine) && !string.IsNullOrEmpty(ArtifactPathInContainer);
-
-        private static string getCanonicalImageName(string imageName)
-            => imageName.Contains(':') ? imageName : $"{imageName}:latest";
     }
 }

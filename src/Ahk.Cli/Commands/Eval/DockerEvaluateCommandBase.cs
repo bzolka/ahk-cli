@@ -26,12 +26,29 @@ namespace Ahk.Commands.Eval
         [CommandOption("container-arg", Description = "Key-value pairs to pass to Docker when creating the container (multiple values are allowed)")]
         public IReadOnlyCollection<string>? ContainerParams { get; set; }
 
+
+        [CommandOption("service-container", Description = "The name of the Docker image to run as a service container linked to the main container")]
+        public string? ServiceContainerImage { get; set; } = null;
+
+        [CommandOption("service-container-name", Description = "Name to set for the service container (also the DNS name)")]
+        public string? ServiceContainerName { get; set; } = null;
+
+        [CommandOption("service-container-env", Description = "Key-value pairs to pass to the service container as environment variables")]
+        public IReadOnlyCollection<string>? ServiceContainerEnvVariables { get; set; }
+
+
         public DockerEvaluateCommandBase(ILogger logger)
             : base(logger)
         {
         }
 
         protected override ITaskRunner CreateRunner(string submissionSource, string studentId, string artifactPath)
-            => new DockerRunner(new DockerRunnerTask(submissionSource, studentId, Timeout, ImageName, submissionSource, SubmissionDirInContainer, artifactPath, ArtifactDirInContainer, ContainerEnvVariables, ContainerParams), logger);
+            => DockerRunner.Create(
+                task: new DockerRunnerTask(
+                    submissionSource, studentId, Timeout,
+                    new ContainerConfig(imageName: ImageName, envVariables: ContainerEnvVariables, createParams: ContainerParams),
+                    submissionSource, SubmissionDirInContainer, artifactPath, ArtifactDirInContainer,
+                    string.IsNullOrEmpty(ServiceContainerImage) ? null : new ContainerConfig(imageName: ServiceContainerImage, envVariables: ServiceContainerEnvVariables, name: ServiceContainerName)),
+                logger);
     }
 }

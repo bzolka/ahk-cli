@@ -33,7 +33,7 @@ jobs:
         working-directory: app
         shell: pwsh
         run: |
-          dotnet ahk.dll eval docker consolemessage --image sampleevaluator-cm --validationcode Valid55Code -s "./../sample-evaluator/sample-input" -o "./evaluation-output-cm"
+          dotnet ahk.dll eval docker consolemessage --image sampleevaluator-cm --validationcode Valid55Code -s "./../sample-evaluator/sample-input" -o "./evaluation-output-cm" --container-env WEBSERVER=web --service-container nginx --service-container-name web
           if (-not (Test-Path "evaluation-output-cm/results.xlsx")) { exit -1 }
           if ((Get-ChildItem -Path evaluation-output-cm -Include *.txt -Recurse | where { $_.Length -gt 0}).Length -ne 4) { exit -1 }
 
