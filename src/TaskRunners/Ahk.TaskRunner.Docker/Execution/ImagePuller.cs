@@ -7,7 +7,7 @@ namespace Ahk.TaskRunner
 {
     public static class ImagePuller
     {
-        public static async Task<bool> CheckImageExists(string imageName)
+        public static async Task<bool> CheckImageExists(ImageName imageName)
         {
             using var docker = DockerConnectionHelper.GetConnectionConfiguration().CreateClient();
 
@@ -20,7 +20,7 @@ namespace Ahk.TaskRunner
             return findImageResult.Any();
         }
 
-        public static async Task Pull(string imageName)
+        public static async Task Pull(ImageName imageName)
         {
             using var docker = DockerConnectionHelper.GetConnectionConfiguration().CreateClient();
             await docker.Images.CreateImageAsync(new Docker.DotNet.Models.ImagesCreateParameters() { FromImage = imageName }, null, new Progress<Docker.DotNet.Models.JSONMessage>());
