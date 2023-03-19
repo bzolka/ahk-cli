@@ -10,7 +10,8 @@ namespace AHK.ExcelResultsWriter
 {
     public class XlsxResultsWriter : IDisposable
     {
-        private readonly string resultsXlsxFileName;
+        private readonly XlsxResultsWriterConfig config;
+
         private readonly XSSFWorkbook wb;
         private readonly ISheet workSheet;
         private readonly IRow headerRow;
@@ -22,9 +23,10 @@ namespace AHK.ExcelResultsWriter
         private int nextRowIndex = 1;
         private readonly Dictionary<string, int> exerciseToColumnIndex = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 
-        public XlsxResultsWriter(string resultsXlsxFileName)
+        public XlsxResultsWriter(XlsxResultsWriterConfig config)
         {
-            this.resultsXlsxFileName = resultsXlsxFileName;
+            this.config = config;
+
             this.wb = new XSSFWorkbook();
             this.workSheet = wb.CreateSheet();
 
@@ -105,18 +107,57 @@ namespace AHK.ExcelResultsWriter
             var sb = new StringBuilder();
             foreach (var tr in testResults)
             {
-                sb.Append($"[{tr.TestName}] {tr.ResultPoints}");
+
+                // Semantics of xlsxResultsWriter_Comment_SkipSuccessfullTests:
+                // We can't check if test is truly successful here. It's because console parser (but only this) supports points
+                // larger than 1, and we don't know the max point.
+                // So, instead of checking if test is successful, filter out irrelevant test, and have info in the comment only if:
+                // - grading is unsuccessful or grading is inclonclusive or have something in the Description.
+                // Also, if grading is unsuccessful or grading is inclonclusive, then add some info about this in the resulting text.
+
+                bool isTestNameWritten = false;
+
+                if (!config.Comment_MinimalOutput)
+                    AppendText_PrependTestNameIfNotYetWritten($" {tr.ResultPoints}");
+
+                if (config.Comment_MinimalOutput)
+                {
+                    if (tr.GradingOutcome == GradingOutcomes.FailedToGrade)
+                        AppendText_PrependTestNameIfNotYetWritten(" / Failed to grade.");
+                    else if (tr.GradingOutcome == GradingOutcomes.Inconclusive)
+                        AppendText_PrependTestNameIfNotYetWritten(" / Test is inclonclusive.");
+                }
+
                 if (!string.IsNullOrEmpty(tr.Description))
-                    sb.Append(" / " + tr.Description);
+                    AppendText_PrependTestNameIfNotYetWritten(" / " + tr.Description);
+
+                // If Comment_MinimalOutput is true, we could add an extra line here for better readability.
+                // I used to have that for Sznikák HF1 and HF2. Maybe I'll re-add it later.
+
                 sb.AppendLine();
+
+                // Probably this is not very performant, a closure is create in each iteration ...
+                // Alternatively we could build another string here without the test name, and when we are though everything could check
+                // if we have anything to write out, and if yes, write out the test name and then this other string.
+                void AppendText_PrependTestNameIfNotYetWritten(string text)
+                {
+                    if (!isTestNameWritten)
+                    {
+                        sb.Append($"[{tr.TestName}]");
+                        isTestNameWritten = true;
+                    }
+                    sb.Append(text);
+                }
             }
 
             return sb.ToString().TrimEnd();
         }
 
+
+
         private void saveFile()
         {
-            using (var fs = File.Create(resultsXlsxFileName))
+            using (var fs = File.Create(config.ResultsXlsxFileName))
                 wb.Write(fs);
         }
 

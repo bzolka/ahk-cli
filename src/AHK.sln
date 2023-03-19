@@ -28,9 +28,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AHK.Grader.ConsoleMessages"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{A6809298-A606-4F3B-8A19-5C3930B3B2D3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AHK.Grader.ConsoleMessages.Tests", "Tests\AHK.Grader.ConsoleMessages.Tests\AHK.Grader.ConsoleMessages.Tests.csproj", "{B5011052-9BA8-4706-84A9-9020829DE9EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AHK.Grader.ConsoleMessages.Tests", "Tests\AHK.Grader.ConsoleMessages.Tests\AHK.Grader.ConsoleMessages.Tests.csproj", "{B5011052-9BA8-4706-84A9-9020829DE9EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AHK.Grader.Trx.Tests", "Tests\AHK.Grader.Trx.Tests\AHK.Grader.Trx.Tests.csproj", "{5FE6257F-37F5-4F9B-B960-5D91C4ABE57D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AHK.Grader.Trx.Tests", "Tests\AHK.Grader.Trx.Tests\AHK.Grader.Trx.Tests.csproj", "{5FE6257F-37F5-4F9B-B960-5D91C4ABE57D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AHK.TaskRunner.LocalCmd", "AHK.TaskRunner.LocalCmd\AHK.TaskRunner.LocalCmd.csproj", "{6A8A867C-D27D-4EB7-B0ED-B0F07327B242}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -74,6 +76,10 @@ Global
 		{5FE6257F-37F5-4F9B-B960-5D91C4ABE57D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5FE6257F-37F5-4F9B-B960-5D91C4ABE57D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5FE6257F-37F5-4F9B-B960-5D91C4ABE57D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A8A867C-D27D-4EB7-B0ED-B0F07327B242}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A8A867C-D27D-4EB7-B0ED-B0F07327B242}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A8A867C-D27D-4EB7-B0ED-B0F07327B242}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A8A867C-D27D-4EB7-B0ED-B0F07327B242}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -86,6 +92,7 @@ Global
 		{BFD46E93-7BFB-405B-BAC9-B18EEB43CEB5} = {76F71CBE-CE82-4246-80E0-AE5B93ED66B2}
 		{B5011052-9BA8-4706-84A9-9020829DE9EC} = {A6809298-A606-4F3B-8A19-5C3930B3B2D3}
 		{5FE6257F-37F5-4F9B-B960-5D91C4ABE57D} = {A6809298-A606-4F3B-8A19-5C3930B3B2D3}
+		{6A8A867C-D27D-4EB7-B0ED-B0F07327B242} = {6FA72F15-46EA-4EEC-8DBD-816DF603BA77}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2CB3A777-8003-4994-800B-8FE8F7C0A890}

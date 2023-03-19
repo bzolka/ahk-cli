@@ -28,9 +28,11 @@ namespace AHK
             var megoldasArg = cliApp.Option("-m|--megoldas", "Hallgatoi megoldasokat tartalmazo konyvtar. Alapertelmezesben az aktualis konyvtar.", Microsoft.Extensions.CommandLineUtils.CommandOptionType.SingleValue);
             var konfigArg = cliApp.Option("-k|--konfiguracio", "Futtatast leiro konfiguracios fajl. Alapertelmeyesben a megoldasok konyvtaraban keresett json fajl.", Microsoft.Extensions.CommandLineUtils.CommandOptionType.SingleValue);
             var eredmenyArg = cliApp.Option("-e|--eredmeny", "Futas eredmenyeinek helye. Alapertelmezesben az aktualis konyvtarban letrehozott uj konyvtar.", Microsoft.Extensions.CommandLineUtils.CommandOptionType.SingleValue);
+            // TODO-BZ !!!
+            var mellozArg = cliApp.Option("-z|--melloz", "Opcionális csv fájl útvonala, mely azon hallgatók GitHub azonosítót tartalmazza (megegyezik az alkönyvátak nevével), melyek ellen.", Microsoft.Extensions.CommandLineUtils.CommandOptionType.SingleValue);
 
             cliApp.OnExecute(async () => {
-                return await AppRunner.Go(megoldasArg.Value(), konfigArg.Value(), eredmenyArg.Value(), appConfig, loggerFactory.CreateLogger("Run"));
+                return await AppRunner.Go(megoldasArg.Value(), konfigArg.Value(), eredmenyArg.Value(), mellozArg.Value(), appConfig, loggerFactory.CreateLogger("Run"));
             });
 
             return cliApp;

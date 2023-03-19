@@ -11,7 +11,7 @@ namespace AHK
 {
     internal static class JobsLoader
     {
-        public static RunConfig Load(string assignmentsDirPathFromUser, string configFilePathFromUser, string resultsDirPathFromUser, ILogger logger)
+        public static RunConfig Load(string assignmentsDirPathFromUser, string configFilePathFromUser, string resultsDirPathFromUser, string skipAssignmentsFile, ILogger logger)
         {
             (var assignmentsDir, var resultsDir, var jobConfigFile) = InputPathsResolver.ResolveEffectivePaths(assignmentsDirPathFromUser, resultsDirPathFromUser, configFilePathFromUser);
 
@@ -21,7 +21,8 @@ namespace AHK
             var jobConfig = RunConfigReader.GetAndValidateConfig(jobConfigFile);
 
             var evaluationTasks = new List<ExecutionTask>();
-            foreach (var assignmentSolution in enumeratePossibleAssignmentSolutions(assignmentsDir))
+            var assignments = getFilteredAssignmentSolutions(enumeratePossibleAssignmentSolutions(assignmentsDir), skipAssignmentsFile);
+            foreach (var assignmentSolution in assignments)
             {
                 var t = createTaskFrom(assignmentSolution, resultsDir, jobConfig, logger);
                 if (t == null)
@@ -31,11 +32,25 @@ namespace AHK
             }
 
             var resultsXlsxFileName = Path.Combine(resultsDir, "eredmenyek.xlsx");
-            return new RunConfig(evaluationTasks, resultsXlsxFileName);
+            return new RunConfig(evaluationTasks, new ExcelResultsWriter.XlsxResultsWriterConfig(resultsXlsxFileName,
+                jobConfig.XlsxWriter?.Comment_MinimalOutput ?? false));
         }
 
         private static IEnumerable<string> enumeratePossibleAssignmentSolutions(string assignmentsDir) =>
             Directory.EnumerateDirectories(assignmentsDir).Union(Directory.EnumerateFiles(assignmentsDir, "*.zip"));
+
+        private static IEnumerable<string> getFilteredAssignmentSolutions(IEnumerable<string> dirOrFilPaths, string skipAssignmentsFile)
+        {
+            if (skipAssignmentsFile == null)
+                return dirOrFilPaths;
+
+            var skippableSolutions = File.ReadAllText(skipAssignmentsFile)
+                .Split(new string[] { ";", ",", "\t", "\r\n" }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => s.Trim()).ToHashSet();
+            return dirOrFilPaths.Where(
+                f => !skippableSolutions.Contains(Path.GetFileNameWithoutExtension(f))
+                );
+        }
 
         private static ExecutionTask createTaskFrom(string path, string resultsDir, AHKJobConfig jobConfig, ILogger logger)
         {
@@ -50,9 +65,23 @@ namespace AHK
             }
 
             resultsDir = Path.Combine(resultsDir, studentNeptun);
-            return new ExecutionTask(studentName, studentNeptun, path, resultsDir,
+
+            // TODO-BZ: is this the right place to do this?
+            if (jobConfig.Command != null)
+                return new LocalCmdExecutionTask(studentName, studentNeptun, path, resultsDir,
+                                     jobConfig.Command.Command,
+                                     jobConfig.Command.EnvVars.ToDictionary(e => e.Key, e => e.Value),
+                                     jobConfig.Command.EvaluationTimeout,
+                                     createEvaluationTask(jobConfig));
+            else if (jobConfig.Docker != null)
+                return new DockerExecutionTask(studentName, studentNeptun, path, resultsDir,
                                      jobConfig.Docker.ImageName, jobConfig.Docker.SolutionInContainer, jobConfig.Docker.ResultInContainer, jobConfig.Docker.EvaluationTimeout, jobConfig.Docker.ContainerParams,
                                      createEvaluationTask(jobConfig));
+            else
+            {
+                logger.LogWarning("Ervenytelen futtato konfiguracio", path);
+                return null;
+            }
         }
 
         private static EvaluationTask createEvaluationTask(AHKJobConfig effectiveConfig)

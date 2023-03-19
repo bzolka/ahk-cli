@@ -9,6 +9,7 @@
 
         public readonly string TestName;
         public readonly GradingOutcomes GradingOutcome;
+        // BZ (based on code): this is always 0 or 1 for Trx parser, can only have larger than 1 value for the consolse parser.
         public readonly int ResultPoints;
         public readonly string Description;
 

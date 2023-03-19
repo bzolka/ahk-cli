@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using AHK.TaskRunner;
 using Microsoft.Extensions.Logging;
 
 namespace AHK.Execution
@@ -20,7 +21,7 @@ namespace AHK.Execution
             if (runConfig == null)
                 throw new ArgumentNullException(nameof(runConfig));
 
-            using (var xlsxWriter = new ExcelResultsWriter.XlsxResultsWriter(runConfig.ResultsXlsxFileName))
+            using (var xlsxWriter = new ExcelResultsWriter.XlsxResultsWriter(runConfig.XlsxResultsWriterConfig))
             {
                 var evaluationResult = new ExecutionStatisticsRecorder();
                 int finishedCount = 0;
@@ -45,7 +46,7 @@ namespace AHK.Execution
 
                 try
                 {
-                    using (var taskRunner = new TaskRunner.DockerRunner(createDockerTask(task), logger))
+                    using (var taskRunner = createTaskRunner(task, logger))
                     {
                         logger.LogTrace("Starting runner");
                         var runnerResult = await taskRunner.Run();
@@ -110,13 +111,33 @@ namespace AHK.Execution
             }
         }
 
-        private TaskRunner.DockerRunnerTask createDockerTask(ExecutionTask task)
+        private ITaskRunner createTaskRunner(ExecutionTask task, ILogger logger)
+        {
+            switch (task)
+            {
+                case DockerExecutionTask dockerTask:
+                    return new TaskRunner.DockerRunner(createDockerTask(dockerTask), logger);
+                case LocalCmdExecutionTask cmdTask:
+                    return new TaskRunner.LocalCmdRunner(createLocalCmdTask(cmdTask), logger);
+                default:
+                    throw new ArgumentException("task is not a recognized ExecutionTask", nameof(task));
+            }
+        }
+
+        private TaskRunner.DockerRunnerTask createDockerTask(DockerExecutionTask task)
             => new TaskRunner.DockerRunnerTask(task.TaskId,
                                                task.DockerImageName,
                                                task.SolutionPath, task.DockerSolutionDirectoryInContainer,
                                                task.ResultArtifactPath, task.DockerResultPathInContainer,
                                                TimeSpanHelper.Smaller(task.DockerTimeout, maxTimeout),
                                                task.DockerImageParams);
+
+        private TaskRunner.LocalCmdRunnerTask createLocalCmdTask(LocalCmdExecutionTask task)
+         => new TaskRunner.LocalCmdRunnerTask(task.TaskId,
+                                            task.SolutionPath, task.ResultArtifactPath,
+                                            TimeSpanHelper.Smaller(task.CommandTimeout, maxTimeout),
+                                            task.Command, task.EnvironmentVariables);// TODO-BZ: DockerTimeout is not a menaingful name here
+
 
         private string sanitizeContainerConsoleOutput(string text, Evaluation.EvaluationTask evaluationTask)
         {

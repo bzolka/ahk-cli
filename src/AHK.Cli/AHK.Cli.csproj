@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>AHK</RootNamespace>
     <AssemblyName>AHK</AssemblyName>
     <LangVersion>7.1</LangVersion>
@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AHK.ExcelResultsWriter\AHK.ExcelResultsWriter.csproj" />
+    <ProjectReference Include="..\AHK.TaskRunner.LocalCmd\AHK.TaskRunner.LocalCmd.csproj" />
     <ProjectReference Include="..\Graders\AHK.Grader.ConsoleMessages\AHK.Grader.ConsoleMessages.csproj" />
     <ProjectReference Include="..\Graders\AHK.Grader.Domain\AHK.Grader.Domain.csproj" />
     <ProjectReference Include="..\Graders\AHK.Grader.Trx\AHK.Grader.Trx.csproj" />

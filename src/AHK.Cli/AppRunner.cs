@@ -7,12 +7,12 @@ namespace AHK
 {
     internal static class AppRunner
     {
-        public static async Task<int> Go(string assignmentsDir, string executionConfigFile, string resultsDir, AppConfig appConfig, ILogger logger)
+        public static async Task<int> Go(string assignmentsDir, string executionConfigFile, string resultsDir, string skipAssignmentsFile, AppConfig appConfig, ILogger logger)
         {
             try
             {
                 Console.WriteLine("Megoldasok beolvasasa...");
-                var runConfig = JobsLoader.Load(assignmentsDir, executionConfigFile, resultsDir, logger);
+                var runConfig = JobsLoader.Load(assignmentsDir, executionConfigFile, resultsDir, skipAssignmentsFile, logger);
                 Console.WriteLine("Megoldasok beolvasasa kesz.");
 
                 Console.WriteLine("Kiertekeles futtatasa...");

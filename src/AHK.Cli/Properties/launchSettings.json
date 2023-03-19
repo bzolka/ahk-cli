@@ -2,8 +2,8 @@
   "profiles": {
     "AHK.Cli": {
       "commandName": "Project",
-      "commandLineArgs": "-k \"./Console-log/futtato-konfiguracio\" -m \"./minta-hallgatoi-megoldasok\" -e \"./futas-eredmenye-{datum}\"",
-      "workingDirectory": "$(SolutionDir)..\\MintaHfEllenorzo"
+      "commandLineArgs": "-k \"./ahk-config\" -m \"./Work/hallgatoi-megoldasok\" -e \"./Work/futas-eredmenye-{datum}\"",
+      "workingDirectory": "$(SolutionDir)..\\.."
     }
   }
 }

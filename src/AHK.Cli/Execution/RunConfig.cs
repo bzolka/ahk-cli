@@ -1,16 +1,17 @@
 ﻿using System.Collections.Generic;
+using AHK.ExcelResultsWriter;
 
 namespace AHK.Execution
 {
     public class RunConfig
     {
         public readonly IReadOnlyList<ExecutionTask> Tasks;
-        public readonly string ResultsXlsxFileName;
+        public readonly XlsxResultsWriterConfig XlsxResultsWriterConfig;
 
-        public RunConfig(IReadOnlyList<ExecutionTask> tasks, string resultsXlsxFileName)
+        public RunConfig(IReadOnlyList<ExecutionTask> tasks, XlsxResultsWriterConfig xlsxResultsWriterConfig)
         {
-            this.Tasks = tasks;
-            this.ResultsXlsxFileName = resultsXlsxFileName;
+            Tasks = tasks;
+            XlsxResultsWriterConfig = xlsxResultsWriterConfig;
         }
     }
 }
